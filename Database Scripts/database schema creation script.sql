@@ -1,4 +1,4 @@
--- create schema movie_recommender;
+create schema movie_recommender CHARACTER SET LATIN1;
 
 CREATE TABLE `movie_recommender`.`movies` (
   `movieID` INT NOT NULL,
@@ -25,31 +25,41 @@ CREATE TABLE `movie_recommender`.`movies` (
   PRIMARY KEY (`movieID`));
 
 CREATE TABLE `movie_recommender`.`movie_genres` (
-  `genre` VARCHAR(100) NOT NULL,
   `movieID` INT NOT NULL,
+  `genre` VARCHAR(100) NOT NULL,
   PRIMARY KEY (`genre`,`movieID`),
   CONSTRAINT fk_movie_genres_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
 
 CREATE TABLE `movie_recommender`.`movie_countries` (
-  `country` VARCHAR(100) NOT NULL,
   `movieID` INT NOT NULL,
-  PRIMARY KEY (`country`,`movieID`),
+  `country` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`movieID`,`country`),
   CONSTRAINT fk_movie_countries_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
   
 CREATE TABLE `movie_recommender`.`movie_actors` (
-  `actorID` VARCHAR(100) NOT NULL,
   `movieID` INT,
+  `actorID` VARCHAR(100) NOT NULL,
   `actorName` VARCHAR(200),
   `ranking` INT,
   PRIMARY KEY (`actorID`),
   CONSTRAINT fk_movie_actors_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
   
 CREATE TABLE `movie_recommender`.`movie_directors` (
-  `directorID` VARCHAR(100) NOT NULL,
   `movieID` INT,
+  `directorID` VARCHAR(100) NOT NULL,
   `actorName` VARCHAR(200),
   PRIMARY KEY (`directorID`),
   CONSTRAINT fk_movie_directors_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));  
+  
+ CREATE TABLE `movie_recommender`.`movie_locations` (
+  `movieLocationsID` INT NOT NULL AUTO_INCREMENT,
+  `movieID` INT,
+  `location1` VARCHAR(200),
+  `location2` VARCHAR(200),
+  `location3` VARCHAR(200),
+  `location4` VARCHAR(200),
+  PRIMARY KEY (`movieLocationsID`),
+  CONSTRAINT fk_movie_locations_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));   
   
 CREATE TABLE `movie_recommender`.`tags` (
   `tagID` INT NOT NULL,
@@ -108,19 +118,17 @@ CREATE TABLE `movie_recommender`.`user_rated_movies_timestamps` (
   PRIMARY KEY (`userID`, `movieID`),
   CONSTRAINT fk_user_rated_movies_timestamps_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select * from movie_actors;
+select * from movie_countries;
+select * from movie_directors;
+select * from movie_genres;
+select * from movie_locations;
+select * from movie_tags;
+select * from movies;
+select * from tags;
+select * from user_rated_movies;
+select * from user_rated_movies_timestamps;
+select * from user_tagged_movies;
+select * from user_tagged_movies_timestamps;
 
 

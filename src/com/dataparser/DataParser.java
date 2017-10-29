@@ -15,55 +15,39 @@ public class DataParser {
 
 	public static void main(String[] args) {
 
-		System.out.println("Hi this is the Movie Recommender Data Parser.");
+		System.out.println("Hi this is the Reel Review Data Parser.");
 		
+		String moviesFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movies.dat";
+		String tagsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\tags.dat";
+		String movieActorsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_actors.dat";
+		String movieCountriesFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_countries.dat";
+		String movieDirectorsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_directors.dat";
+		String movieGenresFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_genres.dat";
+		String movieLocationsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_locations.dat";
+		String movieTagsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movie_tags.dat";
+		String userRatedMoviesFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\user_ratedmovies.dat";
+		String userRatedMoviesTimestampsFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\user_ratedmovies-timestamps.dat";
+		String userTaggedMoviesFilePath = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\user_taggedmovies.dat";
+		String userTaggedMoviesTimestamps = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\user_taggedmovies-timestamps.dat";
+
 		DataAccess da = new DataAccess();
-		da.insertData();
 		
-	    // Insert the movies table
+		da.insertData(moviesFilePath, "movies");
+		da.insertData(tagsFilePath, "tags");
+		da.insertData(movieActorsFilePath, "movie_actors");
+		da.insertData(movieCountriesFilePath, "movie_countries");
+		da.insertData(movieDirectorsFilePath, "movie_directors");
+		da.insertData(movieGenresFilePath, "movie_genres");
 		
-		String fileName = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movies.dat";
-				
-        // This will reference one line at a time
-        String line = null;
+		da.insertMovieLocations(movieLocationsFilePath);
+		
+		da.insertData(movieTagsFilePath, "movie_tags");
+		da.insertData(userRatedMoviesFilePath, "user_rated_movies");
+		da.insertData(userRatedMoviesTimestampsFilePath, "user_rated_movies_timestamps");
+		da.insertData(userTaggedMoviesFilePath, "user_tagged_movies");
+		da.insertData(userTaggedMoviesTimestamps, "user_tagged_movies_timestamps");  
+		
+		System.out.println("Finished inserting data.");
 
-        try {
-            // FileReader reads text files in the default encoding.
-            FileReader fileReader = 
-                new FileReader(fileName);
-
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader br = 
-                new BufferedReader(fileReader);
-
-            while((line = br.readLine()) != null) {
-            	/*int count = 0;
-            	String[] tokens = line.split("\t");
-            	for (int i = 0; i < tokens.length; i++) {
-					tokens[i]
-				}
-            	String name = tokens[0];
-            	String value = tokens[1];*/
-            	
-                //System.out.println(line);
-            }   
-
-            // Always close files.
-            br.close();         
-        }
-        catch(FileNotFoundException ex) {
-            System.out.println(
-                "Unable to open file '" + 
-                fileName + "'");                
-        }
-        catch(IOException ex) {
-            System.out.println(
-                "Error reading file '" 
-                + fileName + "'");                  
-            // Or we could just do this: 
-            // ex.printStackTrace();
-        }
-        
  	}
-
 }
