@@ -16,8 +16,14 @@ public class DataParser {
 	public static void main(String[] args) {
 
 		System.out.println("Hi this is the Movie Recommender Data Parser.");
-		String fileName = "C:\\Users\\Leo\\git\\CSC204Project\\Rotten Tomatos Dataset\\movie_actors.dat";
-
+		
+		DataAccess da = new DataAccess();
+		da.insertData();
+		
+	    // Insert the movies table
+		
+		String fileName = System.getProperty("user.dir") + "\\Rotten Tomatos Dataset\\movies.dat";
+				
         // This will reference one line at a time
         String line = null;
 
@@ -27,16 +33,23 @@ public class DataParser {
                 new FileReader(fileName);
 
             // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = 
+            BufferedReader br = 
                 new BufferedReader(fileReader);
 
-            while((line = bufferedReader.readLine()) != null) {
+            while((line = br.readLine()) != null) {
+            	/*int count = 0;
+            	String[] tokens = line.split("\t");
+            	for (int i = 0; i < tokens.length; i++) {
+					tokens[i]
+				}
+            	String name = tokens[0];
+            	String value = tokens[1];*/
             	
-                System.out.println(line);
+                //System.out.println(line);
             }   
 
             // Always close files.
-            bufferedReader.close();         
+            br.close();         
         }
         catch(FileNotFoundException ex) {
             System.out.println(
@@ -50,7 +63,7 @@ public class DataParser {
             // Or we could just do this: 
             // ex.printStackTrace();
         }
-		
-	}
+        
+ 	}
 
 }
