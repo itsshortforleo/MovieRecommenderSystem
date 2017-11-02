@@ -13,7 +13,7 @@ public class DataAccess {
 		
 		// Database Credentials
 		final String USER = "root";
-		final String PASS = "root";
+		final String PASS = "nuha1410";
 
 		try {
 			// 1. Get a connection to database
@@ -44,7 +44,7 @@ public class DataAccess {
 		
 		// Database Credentials
 		final String USER = "root";
-		final String PASS = "root";
+		final String PASS = "nuha1410";
 		
 		try {
 			// 1. Get a connection to database
@@ -76,7 +76,7 @@ public class DataAccess {
 		
 		// Database Credentials
 		final String USER = "root";
-		final String PASS = "root";
+		final String PASS = "nuha1410";
 		
 		try {
 			// 1. Get a connection to database
