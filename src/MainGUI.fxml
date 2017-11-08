@@ -11,8 +11,8 @@
 
 <AnchorPane prefHeight="449.0" prefWidth="599.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dataparser.MainController">
    <children>
-      <Button layoutX="525.0" layoutY="24.0" mnemonicParsing="false" onAction="#search" text="search" />
-      <TextField layoutX="134.0" layoutY="24.0" prefHeight="27.0" prefWidth="296.0" text="Find Movies" />
+      <Button layoutX="525.0" layoutY="24.0" mnemonicParsing="false" onAction="#Query2" text="search" />
+      <TextField fx:id="searchText" layoutX="134.0" layoutY="24.0" prefHeight="27.0" prefWidth="296.0" promptText="Find Movies" />
       <ChoiceBox layoutX="439.0" layoutY="24.0" prefHeight="27.0" prefWidth="79.0">
       	<items>
             <FXCollections fx:factory="observableArrayList">
