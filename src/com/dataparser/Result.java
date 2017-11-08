@@ -1,6 +1,7 @@
 package com.dataparser;
-
+//for any result in the table
 public class Result {
+	
 	private String  title;
 	private int year;
 	private int rtAudienceScore;

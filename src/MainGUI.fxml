@@ -13,7 +13,7 @@
    <children>
       <Button layoutX="525.0" layoutY="24.0" mnemonicParsing="false" onAction="#Query2" text="search" />
       <TextField fx:id="searchText" layoutX="134.0" layoutY="24.0" prefHeight="27.0" prefWidth="296.0" promptText="Find Movies" />
-      <ChoiceBox layoutX="439.0" layoutY="24.0" prefHeight="27.0" prefWidth="79.0">
+      <ChoiceBox layoutX="439.0" layoutY="25.0" prefHeight="27.0" prefWidth="79.0">
       	<items>
             <FXCollections fx:factory="observableArrayList">
                   <String fx:value="Movie Title" />

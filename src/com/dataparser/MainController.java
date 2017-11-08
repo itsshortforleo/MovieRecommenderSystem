@@ -26,7 +26,7 @@ public class MainController {
 			// 1. Get a connection to database
 			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			
-			// 2. Create a statement & Execute SQL query
+			// 2. Create a statement 
 			String query1="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
 			String query2="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
 			String query3="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg  WHERE m.`movieID`=mg.`movieID` AND mg.`genre` LIKE '%Adventure%' ORDER BY m.`rtAudienceScore`  LIMIT 5;";
