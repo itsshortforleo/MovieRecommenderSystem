@@ -1,6 +1,6 @@
 Query 1:
 Provide a “See the Top Popular Movies” feature. Show a ranking of the top-k movies with the highest Rotten Tomatoes audience scores without regard to their genres. Here k is a parameter set by user. Each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
-
+String query1="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
 SELECT title, myear, rtAudienceScore, rtPictureURL, imdbPictureURL
 FROM movies
 ORDER BY rtAudienceScore
@@ -15,6 +15,7 @@ SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL, t.v
 
 Query 3:
 For any movie genre name specified by user, show the top-k movies in that particular genre with the highest Rotten Tomatoes audience scores. Here k is a parameter set by user. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
+String query3="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg  WHERE m.`movieID`=mg.`movieID` AND mg.`genre` LIKE '%Adventure%' ORDER BY m.`rtAudienceScore`  LIMIT 5;";
 
  SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL
  FROM movies m, movie_genres mg
