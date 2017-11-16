@@ -1,5 +1,7 @@
 package com.dataparser;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,10 +17,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.util.Callback;
 
 public class MainController implements Initializable{
 	@FXML private TextField searchText;
@@ -30,7 +36,7 @@ public class MainController implements Initializable{
 	@FXML private TableColumn<Result, Integer> AudienceScore;
 	@FXML private ComboBox<String> choices;
 	@FXML private ListView<String> topList;
-	
+	@FXML private ImageView img;
 	private boolean isSearch=false;
 	
 	public ObservableList<Result> results=FXCollections.observableArrayList();
@@ -111,14 +117,58 @@ public class MainController implements Initializable{
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
-		MoviePicture1.setCellValueFactory(new PropertyValueFactory<Result,String>("rtPictureURL"));
-		MoviePicture2.setCellValueFactory(new PropertyValueFactory<Result,String>("imdbPictureURL"));
+		MoviePicture1.setCellValueFactory(new PropertyValueFactory("rtPictureURL"));
+		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
+		MoviePicture1.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
+            @Override
+            public TableCell<Result,String> call(TableColumn<Result,String> param) {                
+                TableCell<Result,String> cell = new TableCell<Result,String>(){
+                	@Override
+                    public void updateItem(String item, boolean empty) {                        
+                        if(item!=null){                            
+                            ImageView imageview = new ImageView();
+                            imageview.setImage(new Image(item));
+                            setGraphic(imageview);
+                        }
+                    }
+                };
+                System.out.println(cell.getIndex());               
+                return cell;
+            }
+        });  
+		
+		MoviePicture2.setCellValueFactory(new PropertyValueFactory("imdbPictureURL"));
+		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
+		MoviePicture2.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
+            @Override
+            public TableCell<Result,String> call(TableColumn<Result,String> param) {                
+                TableCell<Result,String> cell = new TableCell<Result,String>(){
+                	@Override
+                    public void updateItem(String item2, boolean empty) {                        
+                        if(item2!=null){                            
+                            ImageView imageview = new ImageView();
+                            // I put static value because i did not work for me (until we fix the problem
+                            imageview.setImage(new Image("http://content9.flixster.com/movie/10/94/17/10941715_det.jpg"));
+                            System.out.println(item2);
+                            setGraphic(imageview);
+                        }
+                    }
+                };
+                
+                System.out.println(cell.getIndex());               
+                return cell;
+            }
+        });  
+
+		
+//		MoviePicture2.setCellValueFactory(new PropertyValueFactory<Result,String>("imdbPictureURL"));
 		MovieTitle.setCellValueFactory(new PropertyValueFactory<Result,String>("title"));
 		Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
 		AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 		MovieTable.setItems(results);
 		choices.setItems(comboBoxcontent);
 		topList.setItems(listViewContent);
+		
 		
 		//TopList Change Listener
 				topList.getSelectionModel().selectedItemProperty().addListener(

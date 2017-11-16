@@ -9,8 +9,8 @@ public class Result {
 	private SimpleStringProperty  title;
 	private SimpleIntegerProperty year;
 	private SimpleIntegerProperty rtAudienceScore;
-	private SimpleStringProperty  rtPictureURL;
-	private SimpleStringProperty imdbPictureURL;
+	private static SimpleStringProperty  rtPictureURL;
+	private static SimpleStringProperty imdbPictureURL;
 	
 	public Result(String title, Integer year, Integer rtAudienceScore,
 			String rtPictureURL, String imdbPictureURL) {
@@ -35,11 +35,11 @@ public class Result {
 		return title.get();
 	}
 	
-	public String getRtPictureURL(){
+	public static String getRtPictureURL(){
 		return rtPictureURL.get();
 	}
 	
-	public String getImdbPictureURL(){
+	public static String getImdbPictureURL(){
 		return imdbPictureURL.get();
 	}
 
