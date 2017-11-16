@@ -6,7 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+
 public class Main extends Application {
+	
 	
 	public static void main (String[] args){
 		launch(args);
@@ -15,9 +17,8 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		Parent root=FXMLLoader.load(getClass().getClassLoader().getResource("MainGUI.fxml"));
-		Scene scene= new Scene(root);
-		
-		primaryStage.setTitle("my title");
+		Scene scene= new Scene(root); 
+		primaryStage.setTitle("Reel Review");
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		

@@ -6,11 +6,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ResourceBundle;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -25,48 +29,62 @@ public class MainController implements Initializable{
 	@FXML private TableColumn<Result, Integer> Year;
 	@FXML private TableColumn<Result, Integer> AudienceScore;
 	@FXML private ComboBox<String> choices;
+	@FXML private ListView<String> topList;
+	
+	private boolean isSearch=false;
 	
 	public ObservableList<Result> results=FXCollections.observableArrayList();
 	ObservableList<String> comboBoxcontent=FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User Name");
+	ObservableList<String> listViewContent=FXCollections.observableArrayList("Top popular movies","Top popular directors","Top popular actors");
 
-	public  void Query(){
+	public  void SearchQueries(){
+		isSearch=true;
+		String query;
+		switch (choices.getValue()) 
+        {
+			//query2
+            case "Title":  MovieTable.setVisible(true);query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
+                     break;
+            //query4
+            case "Director Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+                     break;
+            //query5
+            case "Actor Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+                     break;
+            //query6 (need to ask about the AVG func ????)
+            case "Tag":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+                     break;
+            //query9 
+            case "User Name":  MovieTable.setVisible(false);query="";
+                     break;
+            default: query="";
+                     break;
+        }
+		RunQuery( query);	
+		
+	}
+	
+	
+	public  void RunQuery( String query) {
 		final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
 
 		// Database Credentials
 		final String USER = "root";
 		final String PASS = "nuha1410";
 		
-		String searchParameter=searchText.getText();
 		try {
 			// 1. Get a connection to database
 			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 			
 			// 2. Create a statement 
-			// based on the ComboBox, the query will change
-			String query;
-			switch (choices.getValue()) 
-	        {
-				//query2
-	            case "Title":  MovieTable.setVisible(true);query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
-	                     break;
-	            //query4
-	            case "Director Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
-	                     break;
-	            //query5
-	            case "Actor Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
-	                     break;
-	            //query6
-	            case "Tag":  MovieTable.setVisible(true);query="";
-	                     break;
-	            //query9
-	            case "User Name":  MovieTable.setVisible(false);query="";
-	                     break;
-	            default: query="";
-	                     break;
-	        }
-
+			
 			PreparedStatement ps=conn.prepareStatement(query);
+			
+			if (isSearch==true){
+			String searchParameter=searchText.getText();
 			ps.setString(1, "%"+searchParameter+"%");
+			}
+			
 			ResultSet myRs = ps.executeQuery();
 			
 			// 4. Process the result set
@@ -87,8 +105,8 @@ public class MainController implements Initializable{
 		}
 		
 		
-		
 	}
+	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -100,6 +118,27 @@ public class MainController implements Initializable{
 		AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 		MovieTable.setItems(results);
 		choices.setItems(comboBoxcontent);
+		topList.setItems(listViewContent);
+		
+		//TopList Change Listener
+				topList.getSelectionModel().selectedItemProperty().addListener(
+		                new ChangeListener<String>() {
+		                    public void changed(ObservableValue<? extends String> ov, 
+		                        String old_val, String new_val) {
+		                    		String query = null;
+		                    		//query1
+		                    		if (new_val.equals("Top popular movies"))
+		                    			query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+		                    		//query7
+		                    		else if (new_val.equals("Top popular directors"))
+		                    			query="";
+		                    		//query8
+		                    		else if (new_val.equals("Top popular actors"))
+		                    			query="";
+		                    		RunQuery(query);
+		                            
+		                    }
+		                });
 		
 	}
 
