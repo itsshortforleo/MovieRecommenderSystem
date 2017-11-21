@@ -1,7 +1,6 @@
 package com.dataparser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -176,7 +175,7 @@ public class MainController implements Initializable{
 		                    public void changed(ObservableValue<? extends String> ov, 
 		                        String old_val, String new_val) {
 		                    		String query = null;
-		                    		//query1
+		                    		//query1 // need to implement query3 here
 		                    		if (new_val.equals("Top popular movies"))
 		                    			query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
 		                    		//query7

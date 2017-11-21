@@ -1,54 +1,81 @@
-Query 1:
-Provide a “See the Top Popular Movies” feature. Show a ranking of the top-k movies with the highest Rotten Tomatoes audience scores without regard to their genres. Here k is a parameter set by user. Each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
-String query1="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
-SELECT title, myear, rtAudienceScore, rtPictureURL, imdbPictureURL
-FROM movies
-ORDER BY rtAudienceScore
-LIMIT 5;
+Questions: 
+1-	“show the top-k movies with the highest Rotten Tomatoes audience scores” is order by m.`rtAudienceScore` 
+2-	“Show a ranking of the top” what do you mean by ranking?
+3-	
 
-Query 2:
-For any movie title specified by user, show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture, its IMDb cover picture and all the user tags associated to that movie. Provide substring pattern matching.
 
-SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL, t.value
- FROM tags t,movies m, user_taggedmovies ut
- WHERE m.id=ut.movieID AND t.id=ut.tagID AND m.title LIKE '%toy%';
+Query 1:Provide a “See the Top Popular Movies” feature. Show a ranking of the top-k movies with the highest Rotten Tomatoes audience scores without regard to their genres. Here k is a parameter set by user. Each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
+(how to implement?)
+SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` 
+FROM `movies` m 
+ORDER BY m.`rtAudienceScore` 
+LIMIT 5
 
-Query 3:
-For any movie genre name specified by user, show the top-k movies in that particular genre with the highest Rotten Tomatoes audience scores. Here k is a parameter set by user. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
-String query3="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg  WHERE m.`movieID`=mg.`movieID` AND mg.`genre` LIKE '%Adventure%' ORDER BY m.`rtAudienceScore`  LIMIT 5;";
+Query 2:For any movie title specified by user, show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture, its IMDb cover picture and all the user tags associated to that movie. Provide substring pattern matching.
+(I did not implement this yet)
+SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` 
+FROM `tags` t,`movies` m, `user_tagged_movies` ut 
+WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;"
 
- SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL
- FROM movies m, movie_genres mg
- WHERE m.id=mg.movieID AND mg.genre LIKE '%Adventure%'
- ORDER BY m.rtAudienceScore
- LIMIT 5;
+Query 3 (not yet):For any movie genre name specified by user, show the top-k movies in that particular genre with the highest Rotten Tomatoes audience scores. Here k is a parameter set by user. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture.
+SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` 
+FROM `movies` m, `movie_genres` mg  
+WHERE m.`movieID`=mg.`movieID` AND mg.`genre` LIKE '%Adventure%' 
+ORDER BY m.`rtAudienceScore`  
+LIMIT 5;";
 
-Query 4:
-For any director name specified by user, show all the movies directed by him or her. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture. Provide substring pattern matching.
+Query 4:For any director name specified by user, show all the movies directed by him or her. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture. Provide substring pattern matching.
+(is it directorName or actorName ?)
+SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` 
+FROM `movies` m, `movie_directors` md  
+WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;
 
- SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL
- FROM movies m, movie_directors md
- WHERE m.id=md.movieID AND md.directorName LIKE '%John Lasseter%';
+Query 5:For any actor name specified by user, show all the movies which he or she appears in. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture. Provide substring pattern matching.
+SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` 
+FROM `movies` m, `movie_actors` ma 
+WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;"
 
-Query 5:
-For any actor name specified by user, show all the movies which he or she appears in. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture. Provide substring pattern matching.
 
- SELECT m.title,m.myear, m.rtAudienceScore, m.rtPictureURL, m.imdbPictureURL
- FROM movies m, movie_actors ma
- WHERE m.id=ma.movieID AND ma.actorName LIKE '%Annie Potts%';
+
+
 
 Query 6:
 For any tag name specified by user, show all the movies associated to that particular tag, ordered by the average Rotten Tomatoes audience scores. Again, each movie should show its title, year, its Rotten Tomatoes audience score, its Rotten Tomatoes cover picture and its IMDb cover picture. Provide substring pattern matching.
+(I cannot put AVG without group by)
+SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` 
+FROM `movies` m, `movie_tags` mt, `tags` t 
+WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? 
+ORDER BY (m.`rtAudienceScore`);
 
-Query 7:
-Provide a “See the Top Popular Directors” feature. Show a ranking of the top- 10 directors with the highest average Rotten Tomatoes audience scores of all the movies he or she has directed. To be on the list, one director should direct at least k movies, where k is a parameter set by user
+Query 7 (not yet):Provide a “See the Top Popular Directors” feature. Show a ranking of the top- 10 directors with the highest average Rotten Tomatoes audience scores of all the movies he or she has directed. To be on the list, one director should direct at least k movies, where k is a parameter set by user
+(each director appears once in the movie_directors table !!)
+SELECT md.`directorID`, md.`actorName`, m.`movieID`
+FROM `movies` m, `movie_directors` md
+WHERE m.`movieID`=md.`movieID`
+GROUP BY md.`directorID`
+HAVING COUNT(md.`movieID`) >=1
+ORDER BY m.`rtAudienceScore`
+LIMIT 10;
 
-Query 8:
-Provide a “See the Top Popular Actors” feature. Show a ranking of the top-10 actors with the highest average Rotten Tomatoes audience scores of all the movies which he or she has appeared in. To be on the list, one actor should appear in at least k movies, where k is a parameter set by user.
+Query 8 (not yet): Provide a “See the Top Popular Actors” feature. Show a ranking of the top-10 actors with the highest average Rotten Tomatoes audience scores of all the movies which he or she has appeared in. To be on the list, one actor should appear in at least k movies, where k is a parameter set by user.
+(the same question as 7)
+SELECT ma.`actorName`, ma.`actorID`, m.`movieID`
+FROM `movies` m, `movie_actors` ma
+WHERE m.`movieID`=ma.`movieID`
+GROUP BY ma.`actorID`
+HAVING COUNT(m.`movieID`) >=2
+ORDER BY m.`rtAudienceScore`
+LIMIT 10;
 
-Query 9:
-For any specified user, provide a way to show the timeline of all the movies she has rated, with the rating she gave to each movie. Show the movie breakdown by genre, i.e., the percentage of movies in each genre out of all the movies she has watched.
+Query 9: For any specified user, provide a way to show the timeline of all the movies she has rated, with the rating she gave to each movie. Show the movie breakdown by genre, i.e., the percentage of movies in each genre out of all the movies she has watched.
 Notice: one movie may have more than one genre.
+(does it mean timeline for each genre? What about the percentage?)
+SELECT urm.`userID`, urm.`rating`, m.`title`
+FROM `movies` m, `user_rated_movies` urm
+WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =75
+ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;
 
-Query 10:
-For any specified movie, provide a way to show all the tag names associated to that movie.
+Query 10: For any specified movie, provide a way to show all the tag names associated to that movie. (is it the same as Query2?)
+
+
+
