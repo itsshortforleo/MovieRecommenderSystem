@@ -13,7 +13,7 @@ public class DataAccess {
 		
 		// Database Credentials
 		final String USER = "root";
-		final String PASS = "nuha1410";
+		final String PASS = "root";
 
 		try {
 			// 1. Get a connection to database
