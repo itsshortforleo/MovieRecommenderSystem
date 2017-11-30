@@ -6,14 +6,13 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="449.0" prefWidth="875.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.dataparser.MainController">
+<AnchorPane prefHeight="609.0" prefWidth="1063.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
    <children>
       <Button layoutX="689.0" layoutY="25.0" mnemonicParsing="false" onAction="#SearchQueries" text="search" />
       <TextField fx:id="searchText" layoutX="226.0" layoutY="25.0" prefHeight="27.0" prefWidth="296.0" promptText="Find Movies" />
-      <TableView fx:id="MovieTable" layoutX="226.0" layoutY="74.0" prefHeight="356.0" prefWidth="626.0">
+      <TableView fx:id="MovieTable" layoutX="226.0" layoutY="74.0" prefHeight="523.0" prefWidth="829.0">
         <columns>
             <TableColumn fx:id="MoviePicture1" prefWidth="165.0" text="Movie Picture1" />
             <TableColumn fx:id="MoviePicture2" prefWidth="165.0" text="Movie Picture2" />
@@ -22,8 +21,10 @@
             <TableColumn fx:id="AudienceScore" prefWidth="109.0" text="Audience Score" />
         </columns>
       </TableView>
+      
       <ComboBox fx:id="choices" layoutX="532.0" layoutY="25.0" prefWidth="150.0" />
-      <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="78.0" prefWidth="195.0" />
+      
+      <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="191.0" prefWidth="195.0" />
        		
    </children>
 </AnchorPane>

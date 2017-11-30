@@ -1,4 +1,4 @@
-package com.dataparser;
+package com.userinterface;
 
 
 import java.net.URL;
@@ -42,7 +42,7 @@ public class MainController implements Initializable{
 	ObservableList<String> comboBoxcontent=FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User Name");
 	ObservableList<String> listViewContent=FXCollections.observableArrayList("Top popular movies","Top popular directors","Top popular actors");
 
-	public  void SearchQueries(){
+	public void SearchQueries(){
 		isSearch=true;
 		String query;
 		switch (choices.getValue()) 
@@ -166,6 +166,7 @@ public class MainController implements Initializable{
 		AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 		MovieTable.setItems(results);
 		choices.setItems(comboBoxcontent);
+		choices.getSelectionModel().select("Title");
 		topList.setItems(listViewContent);
 		
 		
