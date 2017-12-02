@@ -5,16 +5,17 @@ import javafx.beans.property.SimpleStringProperty;
 
 //for any result in the table
 public class Result {
-	
+	private int mid;
 	private SimpleStringProperty  title;
 	private SimpleIntegerProperty year;
 	private SimpleIntegerProperty rtAudienceScore;
 	private static SimpleStringProperty  rtPictureURL;
 	private static SimpleStringProperty imdbPictureURL;
 	
-	public Result(String title, Integer year, Integer rtAudienceScore,
+	public Result(Integer mid,String title, Integer year, Integer rtAudienceScore,
 			String rtPictureURL, String imdbPictureURL) {
 		super();
+		this.mid=mid;
 		this.title = new SimpleStringProperty ( title);
 		this.year = new SimpleIntegerProperty(year);
 		this.rtAudienceScore = new SimpleIntegerProperty(rtAudienceScore);
@@ -23,6 +24,10 @@ public class Result {
 	}
 	
 	//get methods
+	public int getid(){
+		return mid;
+	}
+	
 	public int getYear(){
 		return year.get();
 	}

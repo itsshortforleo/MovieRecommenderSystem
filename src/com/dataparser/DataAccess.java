@@ -9,6 +9,7 @@ import java.sql.*;
 public class DataAccess {
 	
 	public void testConnection() {
+		
 		final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
 		
 		// Database Credentials

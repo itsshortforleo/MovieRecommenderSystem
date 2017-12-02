@@ -12,10 +12,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -23,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
 public class MainController implements Initializable{
@@ -34,8 +39,12 @@ public class MainController implements Initializable{
 	@FXML private TableColumn<Result, Integer> Year;
 	@FXML private TableColumn<Result, Integer> AudienceScore;
 	@FXML private ComboBox<String> choices;
+	@FXML private ComboBox<String> recomComboBox;
+	@FXML private ListView<Result> recomList;
 	@FXML private ListView<String> topList;
-	@FXML private ImageView img;
+	@FXML private ListView<String> movieDetailsList;
+	@FXML private ImageView movieImg;
+	@FXML private SplitPane movieDetailsPane;
 	private boolean isSearch=false;
 	
 	public ObservableList<Result> results=FXCollections.observableArrayList();
@@ -45,19 +54,20 @@ public class MainController implements Initializable{
 	public void SearchQueries(){
 		isSearch=true;
 		String query;
+		MovieTable.setVisible(true);
 		switch (choices.getValue()) 
         {
 			//query2
-            case "Title":  MovieTable.setVisible(true);query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
+            case "Title":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
                      break;
             //query4
-            case "Director Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+            case "Director Name":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
                      break;
             //query5
-            case "Actor Name":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+            case "Actor Name":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
                      break;
             //query6 (need to ask about the AVG func ????)
-            case "Tag":  MovieTable.setVisible(true);query="SELECT m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+            case "Tag":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
                      break;
             //query9 
             case "User Name":  MovieTable.setVisible(false);query="";
@@ -65,12 +75,19 @@ public class MainController implements Initializable{
             default: query="";
                      break;
         }
-		RunQuery( query);	
+		RunQuery( query,null);	
 		
 	}
 	
 	
-	public  void RunQuery( String query) {
+	public  void RunQuery( String query, String otherpar) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
 
 		// Database Credentials
@@ -88,6 +105,11 @@ public class MainController implements Initializable{
 			if (isSearch==true){
 			String searchParameter=searchText.getText();
 			ps.setString(1, "%"+searchParameter+"%");
+			
+				
+			}
+			else{
+				ps.setString(1, otherpar);
 			}
 			
 			ResultSet myRs = ps.executeQuery();
@@ -95,7 +117,7 @@ public class MainController implements Initializable{
 			// 4. Process the result set
 			while(myRs.next()) {
 				//System.out.println(myRs.getString("title"));
-				Result result= new Result(myRs.getString("title"),myRs.getInt("year"), myRs.getInt("rtAudienceScore"),myRs.getString("imdbPictureURL"), myRs.getString("rtPictureURL") );
+				Result result= new Result(myRs.getInt("movieID"), myRs.getString("title"),myRs.getInt("year"), myRs.getInt("rtAudienceScore"),myRs.getString("imdbPictureURL"), myRs.getString("rtPictureURL") );
 				results.add(result);
 				
 			}
@@ -115,6 +137,24 @@ public class MainController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		MovieTable.setEditable(false);
+		Callback<TableColumn<Result,String>,TableCell<Result,String>> integerCellFactory =new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
+			@Override
+			public TableCell call(TableColumn p) {
+				MyIntegerTableCell cell = new MyIntegerTableCell();
+				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
+				return cell;
+				}
+			};
+	    
+		Callback<TableColumn<Result,String>,TableCell<Result,String>> stringCellFactory =new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
+				@Override
+				public TableCell call(TableColumn p) {
+				MyStringTableCell cell = new MyStringTableCell();
+				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
+				return cell;
+				}
+			};
 		
 		MoviePicture1.setCellValueFactory(new PropertyValueFactory("rtPictureURL"));
 		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
@@ -131,11 +171,10 @@ public class MainController implements Initializable{
                         }
                     }
                 };
-                System.out.println(cell.getIndex());               
                 return cell;
             }
         });  
-		
+
 		MoviePicture2.setCellValueFactory(new PropertyValueFactory("imdbPictureURL"));
 		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
 		MoviePicture2.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
@@ -161,7 +200,10 @@ public class MainController implements Initializable{
 
 		
 //		MoviePicture2.setCellValueFactory(new PropertyValueFactory<Result,String>("imdbPictureURL"));
-		MovieTitle.setCellValueFactory(new PropertyValueFactory<Result,String>("title"));
+
+		
+		MovieTitle.setCellValueFactory(new PropertyValueFactory<Result, String>("title"));
+		MovieTitle.setCellFactory(stringCellFactory);
 		Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
 		AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 		MovieTable.setItems(results);
@@ -178,18 +220,136 @@ public class MainController implements Initializable{
 		                    		String query = null;
 		                    		//query1 // need to implement query3 here
 		                    		if (new_val.equals("Top popular movies"))
-		                    			query="SELECT m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+		                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
 		                    		//query7
 		                    		else if (new_val.equals("Top popular directors"))
 		                    			query="";
 		                    		//query8
 		                    		else if (new_val.equals("Top popular actors"))
 		                    			query="";
-		                    		RunQuery(query);
+		                    		RunQuery(query,null);
+		                    		
+		                    		
 		                            
 		                    }
 		                });
 		
 	}
+	
+class MyIntegerTableCell extends TableCell<Result, Integer> {
+	@Override
+	public void updateItem(Integer item, boolean empty) {
+		super.updateItem(item, empty);
+		setText(empty ? null : getString());
+		setGraphic(null);
+		}
+	private String getString() {
+		return getItem() == null ? "" : getItem().toString();
+		}
+	}
 
+class MyStringTableCell extends TableCell<Result, String> {
+	@Override
+	public void updateItem(String item, boolean empty) {
+		super.updateItem(item, empty);
+		setText(empty ? null : getString());
+		setGraphic(null);
+		}
+	private String getString() {
+		return getItem() == null ? "" : getItem().toString();
+		}
+	}
+class MyEventHandler implements EventHandler<MouseEvent> {
+	@Override
+	public void handle(MouseEvent t) {
+
+		MovieTable.setVisible(false);
+		movieDetailsPane.setVisible(true);
+		recomList.setVisible(true);
+		
+		Result r= MovieTable.getSelectionModel().getSelectedItem();
+		movieImg.setImage(new Image(r.getRtPictureURL()));
+		ObservableList<String> detailslistContent=FXCollections.observableArrayList("Title: "+r.getTitle(),"Year: "+r.getYear(),"Audience Score: "+r.getRtAudienceScore());
+		movieDetailsList.setItems(detailslistContent);
+		ObservableList<String> recomComboBoxContent=FXCollections.observableArrayList("By Genre", "By Director","By Movie Star");
+		
+		recomComboBox.setVisible(true);
+		recomComboBox.setItems(recomComboBoxContent);
+		recomComboBox.valueProperty().addListener(new ChangeListener<String>() {
+	        @Override public void changed(ObservableValue ov, String t, String t1) {
+	            System.out.println("newval"+t1);
+	            String query=null;
+	            String actorid = null;
+	            switch (t1) 
+	            {
+	    			//query2
+	                case "By Genre": {
+	                	query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m;";;
+	                	break;
+	                }
+	                         
+	                case "By Director":  query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
+                    		 break;
+	                case "By Movie Star": {
+	                	final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
+	            		final String USER = "root";
+	            		final String PASS = "root";
+	            		try {
+	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	            			PreparedStatement ps=conn.prepareStatement("SELECT ma.`actorID`, MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?;");
+	            			Integer movieID=r.getid();
+	            			ps.setString(1, "%"+movieID+"%");
+	            			ResultSet myRs = ps.executeQuery();
+	            			while(myRs.next()) {
+	            				 actorid= myRs.getString("actorID");	
+	            			}
+	            			
+	            			myRs.close();
+	            			ps.close();
+	            			conn.close();
+	            		}
+	            		catch (Exception e){
+	            			
+	            			e.printStackTrace();
+	            		}
+	            		
+	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ?;";
+	                	
+	                	 break;
+	                }
+	                			            
+	        }
+	            RunQuery(query,actorid);
+	            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
+					
+	            	@Override
+					public ListCell<Result> call(ListView<Result> param) {
+						ListCell<Result> cell=new ListCell<Result>(){
+							@Override
+							protected void updateItem(Result res, boolean empty){
+								super.updateItem(res, empty);
+								if (res != null){
+									ImageView imageview = new ImageView();
+									imageview.setImage(new Image(res.getRtPictureURL()));
+		                            setGraphic(imageview);
+		                            setText(res.getTitle());
+								}
+							}
+							
+						};
+	            		return cell;
+	            		
+						
+					}
+	            }
+	        );
+	            recomList.setItems(results);  
+	            
+	        }
+	        
+	    });
+		
+		
+}
+}
 }

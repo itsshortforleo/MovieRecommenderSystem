@@ -30,7 +30,7 @@ public class Main extends Application {
 		
 		
 		
-		String sceneFile = "/fxml/MainGUI.fxml";
+		String sceneFile = "MainGUI.fxml";
 	    Parent root = null;
 	    URL    url  = null;
 	    try
