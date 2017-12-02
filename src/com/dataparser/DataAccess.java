@@ -94,7 +94,7 @@ public class DataAccess {
 			stmt.close();
 			conn.close();
 			
-			System.out.println("Finished inserting " + file + " with code = " + i + " .");
+			System.out.println("Finished inserting " + file + ". Number of rows inserted: " + i + " .");
 
 		}
 		catch (Exception e){

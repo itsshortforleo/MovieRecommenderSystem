@@ -37,18 +37,18 @@ CREATE TABLE `movie_recommender`.`movie_countries` (
   CONSTRAINT fk_movie_countries_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
   
 CREATE TABLE `movie_recommender`.`movie_actors` (
-  `movieID` INT,
+  `movieID` INT NOT NULL,
   `actorID` VARCHAR(100) NOT NULL,
   `actorName` VARCHAR(200),
   `ranking` INT,
-  PRIMARY KEY (`actorID`),
+  PRIMARY KEY (`movieID`, `actorID`),
   CONSTRAINT fk_movie_actors_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));
   
 CREATE TABLE `movie_recommender`.`movie_directors` (
-  `movieID` INT,
+  `movieID` INT NOT NULL,
   `directorID` VARCHAR(100) NOT NULL,
   `actorName` VARCHAR(200),
-  PRIMARY KEY (`directorID`),
+  PRIMARY KEY (`movieID`, `directorID`),
   CONSTRAINT fk_movie_directors_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));  
   
  CREATE TABLE `movie_recommender`.`movie_locations` (
