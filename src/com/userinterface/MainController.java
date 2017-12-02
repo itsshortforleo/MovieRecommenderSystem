@@ -109,7 +109,8 @@ public class MainController implements Initializable{
 				
 			}
 			else{
-				ps.setString(1, otherpar);
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
 			}
 			
 			ResultSet myRs = ps.executeQuery();
@@ -296,9 +297,11 @@ class MyEventHandler implements EventHandler<MouseEvent> {
 	            		final String PASS = "root";
 	            		try {
 	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	            			PreparedStatement ps=conn.prepareStatement("SELECT ma.`actorID`, MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?;");
+	            			PreparedStatement ps=conn.prepareStatement("SELECT a.`actorID` FROM `movie_actors` a WHERE a.`movieID`=? AND a.`ranking` IN (SELECT  MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?) ;");
 	            			Integer movieID=r.getid();
-	            			ps.setString(1, "%"+movieID+"%");
+	            			System.out.println("movieID"+movieID);
+	            			ps.setInt(1, movieID);
+	            			ps.setInt(2, movieID);
 	            			ResultSet myRs = ps.executeQuery();
 	            			while(myRs.next()) {
 	            				 actorid= myRs.getString("actorID");	
@@ -313,12 +316,13 @@ class MyEventHandler implements EventHandler<MouseEvent> {
 	            			e.printStackTrace();
 	            		}
 	            		
-	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ?;";
-	                	
+	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	System.out.println("actorid"+actorid);
 	                	 break;
 	                }
 	                			            
 	        }
+	            isSearch=false;
 	            RunQuery(query,actorid);
 	            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
 					
