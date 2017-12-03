@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -47,10 +49,13 @@ public class MainController implements Initializable {
 	@FXML private ListView<String> movieDetailsList;
 	@FXML private ImageView movieImg;
 	@FXML private SplitPane movieDetailsPane;
+	@FXML private ListView<TagsResult> listViewTags;
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
+	public ObservableList<TagsResult> tagsResults;
+
 	private DbConnection dc;
 	
 	ObservableList<String> comboBoxcontent = FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User Name");
@@ -58,39 +63,115 @@ public class MainController implements Initializable {
 
 	public void SearchQueries(){
 		isSearch=true;
-		String query;
+		
+		// Adding it as a query list rather than a single query so that we can support multiple queries per action
+		List<String> queryList = new ArrayList<String>();
 		MovieTable.setVisible(true);
 		switch (choices.getValue()) 
         {
 			//query2
             case "Title":  MovieTable.setVisible(true);
-            	query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
-                break;
+            	queryList.add("SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND m.`title` LIKE ?;");
+            	queryList.add("SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;");
+            	break;
             //query4
             case "Director Name":  MovieTable.setVisible(true);
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;");
                 break;
             //query5
             case "Actor Name":  MovieTable.setVisible(true);
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;");
                 break;
             //query6 (need to ask about the AVG func ????)
             case "Tag":  MovieTable.setVisible(true);
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);");
                 break;
             //query9 
+                // TODO this is not yet implemented
             case "User Name":  MovieTable.setVisible(false);
-            	query="";
+            	queryList.add("");
                 break;
-            default: query="";
+             // TODO this is not yet implemented
+            default: queryList.add("");
                 break;
         }
 		
-		RunQuery(query,null);	
+		int counter = 0;
+		for (String query : queryList) {
+			// The first time this runs, it's a movie query
+			if(counter == 0) {
+				RunMovieQuery(query, null);
+			}
+			// The second time it runs, it's a tags query
+			else if (counter == 1) {
+				RunTagsQuery(query, null);
+			}
+			counter++;
+			
+		}
+			
 		
 	}
 
-	public  void RunQuery( String query, String otherpar) {
+	// This method will run the related tags query and map the results to the listViewTags listview
+	private void RunTagsQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a TagsResult list object that will hold our query result data
+            tagsResults = FXCollections.observableArrayList();          
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, "%"+searchParameter+"%");				
+				}
+			else if (otherpar != null && !otherpar.isEmpty()){
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
+			}
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			
+			// 4. Process the result set
+            while (rs.next()) {
+            	listViewTags.getItems().add(getString("tag"));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+        // This binds the results from the DB to the MovieTable TableView control in the MainGUI.fxml file
+        //MovieTable.setItems(null);
+        //MovieTable.setItems(results);
+		//listViewTags.setItems(tagsResults);
+		
+
+				
+	}
+
+	private TagsResult getString(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public  void RunMovieQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
         Connection conn = dc.Connect();
         PreparedStatement ps = null;
@@ -183,8 +264,9 @@ public class MainController implements Initializable {
                 return cell;
             }
         });  */
+
 		
-        
+        // This binds the results from the DB to the MovieTable TableView control in the MainGUI.fxml file
         MovieTable.setItems(null);
         MovieTable.setItems(results);
 		
@@ -296,7 +378,7 @@ public class MainController implements Initializable {
                     		else if (new_val.equals("Top popular actors"))
                     			query="";
                     		
-                    		RunQuery(query,null);                         
+                    		RunMovieQuery(query,null);                         
                     }
                 }
 				);
@@ -424,7 +506,7 @@ public class MainController implements Initializable {
 		                			            
 		        }
 		            isSearch=false;
-		            RunQuery(query,actorid);
+		            RunMovieQuery(query,actorid);
 		            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
 						
 		            	@Override

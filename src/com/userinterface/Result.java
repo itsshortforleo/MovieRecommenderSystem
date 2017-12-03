@@ -12,6 +12,7 @@ public class Result {
 	private static SimpleStringProperty  rtPictureURL;
 	private static SimpleStringProperty imdbPictureURL;
 	
+	// Constructor for the class
 	public Result(Integer mid,String title, Integer year, Integer rtAudienceScore,
 			String rtPictureURL, String imdbPictureURL) {
 		super();

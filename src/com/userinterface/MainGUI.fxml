@@ -10,7 +10,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="609.0" prefWidth="1063.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
+<AnchorPane prefHeight="770.0" prefWidth="1341.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
    <children>
       <Button layoutX="689.0" layoutY="25.0" mnemonicParsing="false" onAction="#SearchQueries" text="Search" />
 	  
@@ -38,6 +38,7 @@
       </SplitPane>
       <ComboBox fx:id="recomComboBox" layoutX="227.0" layoutY="381.0" prefWidth="150.0" visible="false" />
       <ListView fx:id="recomList" layoutX="227.0" layoutY="420.0" orientation="HORIZONTAL" prefHeight="171.0" prefWidth="813.0" visible="false" />
+      <ListView fx:id="listViewTags" layoutX="1067.0" layoutY="73.0" prefHeight="191.0" prefWidth="195.0" />
        		
    </children>
 </AnchorPane>
