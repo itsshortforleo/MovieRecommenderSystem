@@ -19,6 +19,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ListCell;
@@ -32,6 +33,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 public class MainController implements Initializable {
@@ -50,12 +52,13 @@ public class MainController implements Initializable {
 	@FXML private ImageView movieImg;
 	@FXML private SplitPane movieDetailsPane;
 	@FXML private ListView<String> listViewTags;
+	@FXML private StackPane overallStackPane;
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
 	public ObservableList<String> tagsResults;
-
+	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
 	ObservableList<String> comboBoxcontent = FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User Name");
@@ -66,7 +69,7 @@ public class MainController implements Initializable {
 		
 		// Adding it as a query list rather than a single query so that we can support multiple queries per action
 		List<String> queryList = new ArrayList<String>();
-		MovieTable.setVisible(true);
+		MovieTable.toFront();
 		switch (choices.getValue()) 
         {
 			//query2
