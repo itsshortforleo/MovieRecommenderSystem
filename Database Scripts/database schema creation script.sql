@@ -47,7 +47,7 @@ CREATE TABLE `movie_recommender`.`movie_actors` (
 CREATE TABLE `movie_recommender`.`movie_directors` (
   `movieID` INT NOT NULL,
   `directorID` VARCHAR(100) NOT NULL,
-  `actorName` VARCHAR(200),
+  `directorName` VARCHAR(200),
   PRIMARY KEY (`movieID`, `directorID`),
   CONSTRAINT fk_movie_directors_movieID FOREIGN KEY(movieID) REFERENCES movies(movieID));  
   

@@ -82,18 +82,16 @@ public class MainController implements Initializable {
             case "Actor Name":  MovieTable.setVisible(true);
             	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;");
                 break;
-            //query6 (need to ask about the AVG func ????)
+            //query6
             case "Tag":  MovieTable.setVisible(true);
             	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);");
                 break;
             //query9 
                 // TODO this is not yet implemented
             case "User Name":  MovieTable.setVisible(false);
-            	queryList.add("");
+            	queryList.add("SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;");
                 break;
-             // TODO this is not yet implemented
-            default: queryList.add("");
-                break;
+             
         }
 		
 		int counter = 0;
@@ -215,9 +213,9 @@ public class MainController implements Initializable {
 		// Set cell value factory to tableview.
         // NB.PropertyValue Factory must be the same with the one set in custom Result POJO class.
         
-        MovieTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-        Year.setCellValueFactory(new PropertyValueFactory<>("year"));
-        AudienceScore.setCellValueFactory(new PropertyValueFactory<>("rtAudienceScore"));
+        MovieTitle.setCellValueFactory(new PropertyValueFactory<Result,String>("title"));
+        Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
+        AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 
         // Convert URL to an image
         MoviePicture1.setCellValueFactory(new PropertyValueFactory<Result,String>("rtPictureURL"));               
@@ -227,7 +225,7 @@ public class MainController implements Initializable {
                 TableCell<Result,String> cell = new TableCell<Result,String>(){
                 	@Override
                     public void updateItem(String item, boolean empty) {                        
-                        if(item!=null){                            
+                        if(item!=null && !item.isEmpty()){                            
                             ImageView imageview = new ImageView();
                             imageview.setImage(new Image(item));
                             setGraphic(imageview);
@@ -354,7 +352,7 @@ public class MainController implements Initializable {
 			movieDetailsPane.setVisible(true);
 			recomList.setVisible(true);
 			
-			Result r= MovieTable.getSelectionModel().getSelectedItem();
+			final Result r= MovieTable.getSelectionModel().getSelectedItem();
 			movieImg.setImage(new Image(r.getRtPictureURL()));
 			ObservableList<String> detailslistContent=FXCollections.observableArrayList("Title: "+r.getTitle(),"Year: "+r.getYear(),"Audience Score: "+r.getRtAudienceScore());
 			movieDetailsList.setItems(detailslistContent);
