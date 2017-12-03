@@ -108,7 +108,7 @@ public class MainController implements Initializable{
 			
 				
 			}
-			else{
+			else if (otherpar != null && !otherpar.isEmpty()){
 				System.out.println(otherpar);
 				ps.setString(1,"%"+ otherpar+"%");
 			}
@@ -138,7 +138,9 @@ public class MainController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		
 		MovieTable.setEditable(false);
+		
 		Callback<TableColumn<Result,String>,TableCell<Result,String>> integerCellFactory =new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
 			@Override
 			public TableCell call(TableColumn p) {
@@ -214,26 +216,27 @@ public class MainController implements Initializable{
 		
 		
 		//TopList Change Listener
-				topList.getSelectionModel().selectedItemProperty().addListener(
-		                new ChangeListener<String>() {
-		                    public void changed(ObservableValue<? extends String> ov, 
-		                        String old_val, String new_val) {
-		                    		String query = null;
-		                    		//query1 // need to implement query3 here
-		                    		if (new_val.equals("Top popular movies"))
-		                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
-		                    		//query7
-		                    		else if (new_val.equals("Top popular directors"))
-		                    			query="";
-		                    		//query8
-		                    		else if (new_val.equals("Top popular actors"))
-		                    			query="";
-		                    		RunQuery(query,null);
-		                    		
-		                    		
-		                            
-		                    }
-		                });
+		topList.getSelectionModel().selectedItemProperty().addListener(
+                new ChangeListener<String>() {
+                    public void changed(ObservableValue<? extends String> ov, 
+                        String old_val, String new_val) {
+                    		String query = null;
+                    		//query1 // need to implement query3 here
+                    		if (new_val.equals("Top popular movies"))
+                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+                    		//query7
+                    		else if (new_val.equals("Top popular directors"))
+                    			query="";
+                    		//query8
+                    		else if (new_val.equals("Top popular actors"))
+                    			query="";
+                    		
+                    		RunQuery(query,null);
+                    		
+                    		
+                            
+                    }
+                });
 		
 	}
 	

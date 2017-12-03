@@ -19,17 +19,6 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		// Make path relative to the project path, not a particular user's path
-		//URL url = new File("src/com/userinterface/MainGUI.fxml").toURL();
-
-/*		Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("MainGUI.fxml"));
-		Scene scene= new Scene(root); 
-		primaryStage.setTitle("Reel Review");
-		primaryStage.setScene(scene);
-		primaryStage.show();*/
-		
-		
-		
 		String sceneFile = "MainGUI.fxml";
 	    Parent root = null;
 	    URL    url  = null;
@@ -39,7 +28,7 @@ public class Main extends Application {
 	        root = FXMLLoader.load( url );
 	        System.out.println( "  fxmlResource = " + sceneFile );
 	        
-			Scene scene= new Scene(root); 
+			Scene scene = new Scene(root); 
 			primaryStage.setTitle("Reel Review");
 			primaryStage.setScene(scene);
 			primaryStage.show();

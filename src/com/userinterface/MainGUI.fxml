@@ -10,23 +10,26 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="609.0" prefWidth="1063.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
+<AnchorPane prefHeight="609.0" prefWidth="1063.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
    <children>
-      <Button layoutX="689.0" layoutY="25.0" mnemonicParsing="false" onAction="#SearchQueries" text="search" />
+      <Button layoutX="689.0" layoutY="25.0" mnemonicParsing="false" onAction="#SearchQueries" text="Search" />
+	  
       <TextField fx:id="searchText" layoutX="226.0" layoutY="25.0" prefHeight="27.0" prefWidth="296.0" promptText="Find Movies" />
-      <TableView fx:id="MovieTable" layoutX="226.0" layoutY="74.0" prefHeight="523.0" prefWidth="829.0" visible="false">
+	  
+      <TableView fx:id="MovieTable" layoutX="226.0" layoutY="74.0" prefHeight="523.0" prefWidth="829.0" visible="true">
         <columns>
             <TableColumn fx:id="MoviePicture1" prefWidth="165.0" text="Movie Picture1" />
             <TableColumn fx:id="MoviePicture2" prefWidth="165.0" text="Movie Picture2" />
           	<TableColumn fx:id="MovieTitle" minWidth="4.0" prefWidth="115.0" text="Movie Title" />
           	<TableColumn fx:id="Year" minWidth="5.0" prefWidth="60.0" text="Year" />
-            <TableColumn fx:id="AudienceScore" prefWidth="109.0" text="Audience Score" />
+            <TableColumn fx:id="AudienceScore" prefWidth="130.0" text="Audience Score" />
         </columns>
       </TableView>
       
       <ComboBox fx:id="choices" layoutX="532.0" layoutY="25.0" prefWidth="150.0" />
       
-            <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="191.0" prefWidth="195.0" />
+      <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="191.0" prefWidth="195.0" />
+      
       <SplitPane fx:id="movieDetailsPane" dividerPositions="0.5" layoutX="227.0" layoutY="73.0" prefHeight="291.0" prefWidth="813.0" visible="false">
          <items>
             <ImageView fx:id="movieImg" fitHeight="289.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
