@@ -16,7 +16,7 @@ public class Result {
 			String rtPictureURL, String imdbPictureURL) {
 		super();
 		this.mid=mid;
-		this.title = new SimpleStringProperty ( title);
+		this.title = new SimpleStringProperty (title);
 		this.year = new SimpleIntegerProperty(year);
 		this.rtAudienceScore = new SimpleIntegerProperty(rtAudienceScore);
 		this.rtPictureURL = new SimpleStringProperty(rtPictureURL);
