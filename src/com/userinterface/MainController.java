@@ -32,7 +32,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 
-public class MainController implements Initializable{
+public class MainController implements Initializable {
 	@FXML private TextField searchText;
 	@FXML private TableView<Result> MovieTable;
 	@FXML private TableColumn<Result, String> MoviePicture1;
@@ -63,24 +63,30 @@ public class MainController implements Initializable{
 		switch (choices.getValue()) 
         {
 			//query2
-            case "Title":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
-                     break;
+            case "Title":  MovieTable.setVisible(true);
+            	query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
+                break;
             //query4
-            case "Director Name":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
-                     break;
+            case "Director Name":  MovieTable.setVisible(true);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+                break;
             //query5
-            case "Actor Name":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
-                     break;
+            case "Actor Name":  MovieTable.setVisible(true);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+                break;
             //query6 (need to ask about the AVG func ????)
-            case "Tag":  MovieTable.setVisible(true);query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
-                     break;
+            case "Tag":  MovieTable.setVisible(true);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+                break;
             //query9 
-            case "User Name":  MovieTable.setVisible(false);query="";
-                     break;
+            case "User Name":  MovieTable.setVisible(false);
+            	query="";
+                break;
             default: query="";
-                     break;
+                break;
         }
-		RunQuery( query,null);	
+		
+		RunQuery(query,null);	
 		
 	}
 
@@ -90,7 +96,9 @@ public class MainController implements Initializable{
         PreparedStatement ps = null;
         ResultSet rs = null;
 		try {
+			// results is a Result list object that will hold our query result data
             results = FXCollections.observableArrayList();
+            
             
 			ps = conn.prepareStatement(query);
 
