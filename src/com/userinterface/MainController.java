@@ -49,12 +49,12 @@ public class MainController implements Initializable {
 	@FXML private ListView<String> movieDetailsList;
 	@FXML private ImageView movieImg;
 	@FXML private SplitPane movieDetailsPane;
-	@FXML private ListView<TagsResult> listViewTags;
+	@FXML private ListView<String> listViewTags;
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
-	public ObservableList<TagsResult> tagsResults;
+	public ObservableList<String> tagsResults;
 
 	private DbConnection dc;
 	
@@ -71,7 +71,7 @@ public class MainController implements Initializable {
         {
 			//query2
             case "Title":  MovieTable.setVisible(true);
-            	queryList.add("SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND m.`title` LIKE ?;");
+            	queryList.add("SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?;");
             	queryList.add("SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;");
             	break;
             //query4
@@ -139,7 +139,8 @@ public class MainController implements Initializable {
 			
 			// 4. Process the result set
             while (rs.next()) {
-            	listViewTags.getItems().add(getString("tag"));
+            	//listViewTags.getItems().add(("tag"));
+            	tagsResults.add(rs.getString("tag"));
             }
         } 
 		catch (SQLException ex) {
@@ -157,18 +158,9 @@ public class MainController implements Initializable {
 		}
 		
 		
-        // This binds the results from the DB to the MovieTable TableView control in the MainGUI.fxml file
-        //MovieTable.setItems(null);
-        //MovieTable.setItems(results);
-		//listViewTags.setItems(tagsResults);
+        // This binds the results from the DB to the MovieTable ListView control in the MainGUI.fxml file
+		listViewTags.setItems(tagsResults);
 		
-
-				
-	}
-
-	private TagsResult getString(String string) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public  void RunMovieQuery(String query, String otherpar) {
@@ -298,62 +290,7 @@ public class MainController implements Initializable {
 				return cell;
 				}
 			};
-		
-		/*MoviePicture1.setCellValueFactory(new PropertyValueFactory("rtPictureURL"));
-		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
-		MoviePicture1.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
-            @Override
-            public TableCell<Result,String> call(TableColumn<Result,String> param) {                
-                TableCell<Result,String> cell = new TableCell<Result,String>(){
-                	@Override
-                    public void updateItem(String item, boolean empty) {                        
-                        if(item!=null){                            
-                            ImageView imageview = new ImageView();
-                            imageview.setImage(new Image(item));
-                            setGraphic(imageview);
-                        }
-                    }
-                };
-                return cell;
-            }
-        }); */ 
 
-		/*MoviePicture2.setCellValueFactory(new PropertyValueFactory("imdbPictureURL"));
-		// SETTING THE CELL FACTORY FOR THE ALBUM ART                 
-		MoviePicture2.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
-            @Override
-            public TableCell<Result,String> call(TableColumn<Result,String> param) {                
-                TableCell<Result,String> cell = new TableCell<Result,String>(){
-                	@Override
-                    public void updateItem(String item2, boolean empty) {                        
-                        if(item2!=null){                            
-                            ImageView imageview = new ImageView();
-                            // I put static value because i did not work for me (until we fix the problem
-                            imageview.setImage(new Image("http://content9.flixster.com/movie/10/94/17/10941715_det.jpg"));
-                            System.out.println(item2);
-                            setGraphic(imageview);
-                        }
-                    }
-                };
-                
-                System.out.println(cell.getIndex());               
-                return cell;
-            }
-        });  
-*/
-		
-//		MoviePicture2.setCellValueFactory(new PropertyValueFactory<Result,String>("imdbPictureURL"));
-
-		
-		//MovieTitle.setCellValueFactory(new PropertyValueFactory<Result, String>("title"));
-		
-		//MovieTitle.setCellFactory(stringCellFactory);
-		
-		//Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
-		
-		//AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
-		
-		//MovieTable.setItems(results);
 		
 		choices.setItems(comboBoxcontent);
 		
@@ -383,40 +320,6 @@ public class MainController implements Initializable {
                 }
 				);
 	}
-	
-	/*@FXML
-    private void loadDataFromDatabase(ActionEvent event) {
-        try {
-            Connection conn = dc.Connect();
-            data = FXCollections.observableArrayList();
-            
-            // Execute query and store result in a resultset
-            ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM user_info");
-            while (rs.next()) {
-                //get string from db, whichever way 
-                data.add(new Result(
-                		rs.getInt("movieID"), 
-                		rs.getString("title"),
-                		rs.getInt("year"),
-                		rs.getInt("rtAudienceScore"),
-                		rs.getString("imdbPictureURL"),
-                		rs.getString("rtPictureURL")));
-            }
-
-        } catch (SQLException ex) {
-            System.err.println("Error"+ex);
-        }
-        
-        //Set cell value factory to tableview.
-        //NB.PropertyValue Factory must be the same with the one set in model class.
-        columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-        columnEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
-        columnDepartment.setCellValueFactory(new PropertyValueFactory<>("department"));
-        
-        tableUser.setItems(null);
-        tableUser.setItems(data);
-
-    }*/
 	
 	class MyIntegerTableCell extends TableCell<Result, Integer> {
 		@Override
