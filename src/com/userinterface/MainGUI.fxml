@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane prefHeight="770.0" prefWidth="1341.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
+<AnchorPane prefHeight="770.0" prefWidth="1341.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
    <children>
       <Button layoutX="689.0" layoutY="25.0" mnemonicParsing="false" onAction="#SearchQueries" text="Search" />
 	  
@@ -25,7 +25,7 @@
       <StackPane fx:id="overallStackPane" layoutX="246.0" layoutY="98.0" prefHeight="618.0" prefWidth="805.0">
          <children>
       	  
-                                    <TableView fx:id="MovieTable" prefHeight="604.0" prefWidth="815.0">
+            <TableView fx:id="MovieTable" prefHeight="604.0" prefWidth="815.0">
               <columns>
                   <TableColumn fx:id="MoviePicture1" prefWidth="165.0" text="Movie Picture1" />
                   <TableColumn fx:id="MoviePicture2" prefWidth="165.0" text="Movie Picture2" />
@@ -70,6 +70,13 @@
                   </TableView>
                </children>
             </Pane>
+            <TableView fx:id="tableViewTopDirectorsResult" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="directorNameColumn" prefWidth="164.0" text="Director Name" />
+                <TableColumn fx:id="directorMovieCount" prefWidth="125.0" text="Total Movies" />
+                  <TableColumn fx:id="directorAverageAudienceScore" minWidth="0.0" prefWidth="188.0" text="Average Audience Score" />
+              </columns>
+            </TableView>
          </children>
       </StackPane>
        	

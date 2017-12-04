@@ -68,12 +68,19 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<userInfo, Integer> minute;
 	@FXML private TableColumn<userInfo, Integer> second;
 	
+	@FXML private TableView<TopDirectorsResult> tableViewTopDirectorsResult;
+	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
+	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
+	@FXML private TableColumn<TopDirectorsResult, Float> directorAverageAudienceScore;
+	
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
+	public ObservableList<TopDirectorsResult> directorResults;
+
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
@@ -220,6 +227,8 @@ public class MainController implements Initializable {
 				
 			} catch (SQLException e) {
 				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
 			}
 		}
 		
@@ -343,8 +352,71 @@ public class MainController implements Initializable {
 		
 
 	}
-	/////////////////////////////////////
 
+
+	public  void RunTopDirectorsQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a TopDirectorsResult list object that will hold our query result data
+			directorResults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, "%"+searchParameter+"%");				
+				}
+			else if (otherpar != null && !otherpar.isEmpty()){
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
+			}
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			
+			// 4. Process the result set
+            while (rs.next()) {
+            	directorResults.add(new TopDirectorsResult(
+            			rs.getString("directorID"),
+            			rs.getString("directorName"),
+            			rs.getInt("directorMovieCount"),
+            			rs.getFloat("averageAudienceScore")));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Bind director columns
+		directorNameColumn.setCellValueFactory(new PropertyValueFactory<TopDirectorsResult,String>("directorName"));
+		directorMovieCount.setCellValueFactory(new PropertyValueFactory<TopDirectorsResult,Integer>("directorMovieCount"));
+		directorAverageAudienceScore.setCellValueFactory(new PropertyValueFactory<TopDirectorsResult,Float>("averageAudienceScore"));
+
+        // This binds the results from the DB to the Director TableView control in the MainGUI.fxml file
+       tableViewTopDirectorsResult.setItems(null);
+       tableViewTopDirectorsResult.setItems(directorResults);
+	}
+	
+	
+	
+	
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
@@ -385,16 +457,29 @@ public class MainController implements Initializable {
                         String old_val, String new_val) {
                     		String query = null;
                     		//query1 // need to implement query3 here
-                    		if (new_val.equals("Top popular movies"))
+                    		if (new_val.equals("Top popular movies")) {
+                    			MovieTable.toFront();
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+                        		RunMovieQuery(query,null);    
+
+                    		}
                     		//query7
-                    		else if (new_val.equals("Top popular directors"))
-                    			query="";
+                    		else if (new_val.equals("Top popular directors")) {
+                    			tableViewTopDirectorsResult.toFront();
+                    			query="select md.`directorID`,  md.`directorName`, count(md.directorID) as directorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore "
+                            			+ " from `movie_directors` md "
+                            			+ " join movies m on m.movieID = md.movieID "
+                            			+ " group by md.directorID, md.directorName "
+                            			+ " having count(md.`movieID`) >=10 "
+                            			+ " order by avg(m.rtAudienceScore) desc "
+                            			+ " LIMIT 10;";
+                    			RunTopDirectorsQuery(query, null);
+                    		}	
                     		//query8
                     		else if (new_val.equals("Top popular actors"))
                     			query="";
                     		
-                    		RunMovieQuery(query,null);                         
+                    		//topList.getSelectionModel().clearSelection();
                     }
                 }
 				);
