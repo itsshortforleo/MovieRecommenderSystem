@@ -103,7 +103,7 @@ public class MainController implements Initializable {
             case "Title":  MovieTable.toFront();
                 query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
-            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?" + limitStr + ";";
+            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
             	RunTagsQuery(query, null);
             	break;
             //query4
@@ -522,10 +522,14 @@ public class MainController implements Initializable {
                     public void changed(ObservableValue<? extends String> ov, 
                         String old_val, String new_val) {
                     		String query = null;
+							String limitStr = "";
+							if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
+								limitStr = "LIMIT " + limitTo.getEditor().getText();
+
                     		//query1 // need to implement query3 here
                     		if (new_val.equals("Top popular movies")) {
                     			MovieTable.toFront();
-                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` " + limitStr + ";";
                         		RunMovieQuery(query,null);    
                     		}
                     		//query7
@@ -537,7 +541,7 @@ public class MainController implements Initializable {
                             			+ " group by md.directorID, md.directorName "
                             			+ " having count(md.`movieID`) >=10 "
                             			+ " order by avg(m.rtAudienceScore) desc "
-                            			+ " LIMIT 10;";
+                            			+ limitStr + ";";
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
@@ -549,7 +553,7 @@ public class MainController implements Initializable {
                     					"group by ma.actorID, ma.actorName\n" + 
                     					"having count(ma.`movieID`) >=10\n" + 
                     					"order by avg(m.rtAudienceScore) desc\n" + 
-                    					"LIMIT 10;";
+                    					limitStr + ";";
                     			RunTopActorsQuery(query, null);
                     		}
                     }
