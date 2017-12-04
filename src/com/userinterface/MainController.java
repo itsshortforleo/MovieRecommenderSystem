@@ -74,6 +74,11 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
 	@FXML private TableColumn<TopDirectorsResult, Float> directorAverageAudienceScore;
 	
+	@FXML private TableView<TopActorsResult> tableViewTopActorsResult;
+	@FXML private TableColumn<TopActorsResult, String> actorNameColumn;
+	@FXML private TableColumn<TopActorsResult, Integer> actorMovieCount;
+	@FXML private TableColumn<TopActorsResult, Float> actorAverageAudienceScore;
+	
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
@@ -81,6 +86,7 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
+	public ObservableList<TopActorsResult> actorsResults;
 
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
@@ -420,7 +426,64 @@ public class MainController implements Initializable {
        tableViewTopDirectorsResult.setItems(directorResults);
 	}
 	
-	
+	public  void RunTopActorsQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a TopActorsResult list object that will hold our query result data
+			actorsResults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, "%"+searchParameter+"%");				
+				}
+			else if (otherpar != null && !otherpar.isEmpty()){
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
+			}
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			
+			// 4. Process the result set
+            while (rs.next()) {
+            	actorsResults.add(new TopActorsResult(
+            			rs.getString("actorID"),
+            			rs.getString("acctorName"),
+            			rs.getInt("acctorMovieCount"),
+            			rs.getFloat("averageAudienceScore")));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Bind director columns
+		actorNameColumn.setCellValueFactory(new PropertyValueFactory<TopActorsResult,String>("directorName"));
+		actorMovieCount.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Integer>("directorMovieCount"));
+		actorAverageAudienceScore.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Float>("averageAudienceScore"));
+
+        // This binds the results from the DB to the Director TableView control in the MainGUI.fxml file
+       tableViewTopActorsResult.setItems(null);
+       tableViewTopActorsResult.setItems(actorsResults);
+	}
 	
 	
 	
