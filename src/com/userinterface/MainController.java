@@ -471,18 +471,10 @@ public class MainController implements Initializable {
                         String old_val, String new_val) {
                     		String query = null;
                     		//query1 // need to implement query3 here
-<<<<<<< HEAD
                     		if (new_val.equals("Top popular movies")) {
-=======
-                    		if (new_val.equals("Top popular movies")){
->>>>>>> stash
                     			MovieTable.toFront();
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
-<<<<<<< HEAD
                         		RunMovieQuery(query,null);    
-=======
->>>>>>> stash
-
                     		}
                     		//query7
                     		else if (new_val.equals("Top popular directors")) {
