@@ -454,8 +454,8 @@ public class MainController implements Initializable {
             while (rs.next()) {
             	actorsResults.add(new TopActorsResult(
             			rs.getString("actorID"),
-            			rs.getString("acctorName"),
-            			rs.getInt("acctorMovieCount"),
+            			rs.getString("actorName"),
+            			rs.getInt("actorMovieCount"),
             			rs.getFloat("averageAudienceScore")));
             }
         } 
@@ -476,8 +476,8 @@ public class MainController implements Initializable {
 		}
 		
 		// Bind director columns
-		actorNameColumn.setCellValueFactory(new PropertyValueFactory<TopActorsResult,String>("directorName"));
-		actorMovieCount.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Integer>("directorMovieCount"));
+		actorNameColumn.setCellValueFactory(new PropertyValueFactory<TopActorsResult,String>("actorName"));
+		actorMovieCount.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Integer>("actorMovieCount"));
 		actorAverageAudienceScore.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Float>("averageAudienceScore"));
 
         // This binds the results from the DB to the Director TableView control in the MainGUI.fxml file
@@ -545,10 +545,17 @@ public class MainController implements Initializable {
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
-                    		else if (new_val.equals("Top popular actors"))
-                    			query="";
-                    		
-                    		//topList.getSelectionModel().clearSelection();
+                    		else if (new_val.equals("Top popular actors")) {
+                    			tableViewTopActorsResult.toFront();
+                    			query="select ma.`actorID`,  ma.`actorName`, count(ma.actorID) as actorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore\n" + 
+                    					"from `movie_actors` ma\n" + 
+                    					"join movies m on m.movieID = ma.movieID\n" + 
+                    					"group by ma.actorID, ma.actorName\n" + 
+                    					"having count(ma.`movieID`) >=10\n" + 
+                    					"order by avg(m.rtAudienceScore) desc\n" + 
+                    					"LIMIT 10;";
+                    			RunTopActorsQuery(query, null);
+                    		}
                     }
                 }
 				);

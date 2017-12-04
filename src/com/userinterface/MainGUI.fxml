@@ -77,6 +77,13 @@
                   <TableColumn fx:id="directorAverageAudienceScore" minWidth="0.0" prefWidth="188.0" text="Average Audience Score" />
               </columns>
             </TableView>
+            <TableView fx:id="tableViewTopActorsResult" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="actorNameColumn" prefWidth="166.48709106445312" text="Actor Name" />
+                <TableColumn fx:id="actorMovieCount" prefWidth="107.75619506835938" text="Total Movies" />
+                  <TableColumn fx:id="actorAverageAudienceScore" prefWidth="196.00787353515625" text="Average Audience Score" />
+              </columns>
+            </TableView>
          </children>
       </StackPane>
        	
