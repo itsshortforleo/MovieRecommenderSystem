@@ -84,13 +84,9 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
-<<<<<<< HEAD
 	public ObservableList<userGenre> genrePerc;
-	
-=======
 	public ObservableList<TopActorsResult> actorsResults;
 
->>>>>>> branch 'master' of https://github.com/musicallycursed/CSC204Project.git
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
