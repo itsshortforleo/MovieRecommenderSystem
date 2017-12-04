@@ -291,7 +291,7 @@ public class MainController implements Initializable {
 	public  void RunUserQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
         Connection conn = dc.Connect();
-        Integer totalRecored=0;
+        Integer totalMovieRecoreds=0;
         PreparedStatement ps = null;
         PreparedStatement ps2 = null;
         ResultSet rs = null;
@@ -324,13 +324,13 @@ public class MainController implements Initializable {
                 		rs.getInt("date_second")));
             }
             
-            ps2 = conn.prepareStatement("SELECT COUNT(*) AS total FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
+            ps2 = conn.prepareStatement("SELECT COUNT(urm.userID) as totalMovies FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
             ps2.setString(1, searchParameter);
             rs2 =ps2.executeQuery();
             while (rs2.next()) {
-            	 totalRecored=rs.getInt("total");
+            	 totalMovieRecoreds=rs2.getInt("totalMovies");
             }
-            System.out.println("totalRecored"+ totalRecored);
+            System.out.println("totalRecored"+ totalMovieRecoreds);
             
             
         } 
