@@ -49,12 +49,12 @@ ORDER BY (m.`rtAudienceScore`);
 
 Query 7 (not yet):Provide a “See the Top Popular Directors” feature. Show a ranking of the top- 10 directors with the highest average Rotten Tomatoes audience scores of all the movies he or she has directed. To be on the list, one director should direct at least k movies, where k is a parameter set by user
 (each director appears once in the movie_directors table !!)
-SELECT md.`directorID`, md.`actorName`, m.`movieID`
-FROM `movies` m, `movie_directors` md
-WHERE m.`movieID`=md.`movieID`
-GROUP BY md.`directorID`
-HAVING COUNT(md.`movieID`) >=1
-ORDER BY m.`rtAudienceScore`
+select md.`directorID`,  md.`directorName`, count(md.directorID) as directorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore
+from `movie_directors` md
+join movies m on m.movieID = md.movieID
+group by md.directorID, md.directorName
+having count(md.`movieID`) >=10
+order by avg(m.rtAudienceScore) desc
 LIMIT 10;
 
 Query 8 (not yet): Provide a “See the Top Popular Actors” feature. Show a ranking of the top-10 actors with the highest average Rotten Tomatoes audience scores of all the movies which he or she has appeared in. To be on the list, one actor should appear in at least k movies, where k is a parameter set by user.
