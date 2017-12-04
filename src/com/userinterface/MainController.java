@@ -61,6 +61,10 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<userInfo, Integer> minute;
 	@FXML private TableColumn<userInfo, Integer> second;
 	
+	@FXML private TableView<userGenre> percTable;
+	@FXML private TableColumn<userGenre, Float> percentag;
+	@FXML private TableColumn<userGenre, String> genre;
+	
 	@FXML private TableView<TopDirectorsResult> tableViewTopDirectorsResult;
 	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
 	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
@@ -80,6 +84,7 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
+	public ObservableList<userGenre> genrePerc;
 	public ObservableList<TopActorsResult> actorsResults;
 
 	public Node currentUI=MovieTable;
@@ -291,11 +296,14 @@ public class MainController implements Initializable {
 	public  void RunUserQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
         Connection conn = dc.Connect();
-        Integer totalRecored=0;
+        Integer totalMovieRecoreds=0;
         PreparedStatement ps = null;
         PreparedStatement ps2 = null;
+        PreparedStatement ps3 = null;
+        
         ResultSet rs = null;
         ResultSet rs2 = null;
+        ResultSet rs3 = null;
         String searchParameter=null;
         HashMap<String,Integer> hmGenre=new HashMap<String,Integer>();
         
@@ -323,14 +331,38 @@ public class MainController implements Initializable {
                 		rs.getInt("date_minute"),
                 		rs.getInt("date_second")));
             }
-            
-            ps2 = conn.prepareStatement("SELECT COUNT(*) AS total FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
+            // handling the percentage table
+            ps2 = conn.prepareStatement("SELECT COUNT(urm.userID) as totalMovies FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
             ps2.setString(1, searchParameter);
             rs2 =ps2.executeQuery();
             while (rs2.next()) {
-            	 totalRecored=rs.getInt("total");
+            	 totalMovieRecoreds=rs2.getInt("totalMovies");
             }
-            System.out.println("totalRecored"+ totalRecored);
+            System.out.println("totalRecored"+ totalMovieRecoreds);
+            
+            // to count every type
+            String[] Genre = { "Action","Adventure","Animation","Animation","Crime", "Documentary", "Drama", "Fantasy","Film-Noir","Horror","IMAX","Musical","Mystery","Romance","Sci-Fi","Short","Thriller","War","Western"};
+            genrePerc = FXCollections.observableArrayList();
+            for (String s: Genre) {           
+                    //Do your stuff here
+            	ps3 = conn.prepareStatement("SELECT COUNT(urm.movieID) as totalMovies FROM `movies` m, `user_rated_movies` urm, `movie_genres` mg WHERE m.`movieID`=urm.`movieID` AND m.`movieID`=mg.`movieID` AND urm.`userID` =? AND mg.`genre` LIKE ? ;");
+                ps3.setString(1, searchParameter);
+                ps3.setString(2, "%"+s+"%");
+                rs3 =ps3.executeQuery();
+                System.out.println(ps3);
+                if (rs3.next()) {
+                while (rs3.next()) {
+                	genrePerc.add(new userGenre(rs3.getFloat("totalMovies"),s));
+                	System.out.println(s);
+                	 
+                }
+                    
+                }else{
+                	System.out.println("nothing");
+                }
+                	
+                }
+            
             
             
         } 
@@ -363,6 +395,12 @@ public class MainController implements Initializable {
        
 		userTable.setItems(null);
 		userTable.setItems(Userresults);
+		
+		genre.setCellValueFactory(new PropertyValueFactory<userGenre,String>("genre"));
+		percentag.setCellValueFactory(new PropertyValueFactory<userGenre,Float>("perc"));
+		percTable.setItems(null);
+		percTable.setItems(genrePerc);
+		
 		
 
 	}
@@ -522,10 +560,14 @@ public class MainController implements Initializable {
                     public void changed(ObservableValue<? extends String> ov, 
                         String old_val, String new_val) {
                     		String query = null;
+							String limitStr = "";
+							if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
+								limitStr = "LIMIT " + limitTo.getEditor().getText();
+
                     		//query1 // need to implement query3 here
                     		if (new_val.equals("Top popular movies")) {
                     			MovieTable.toFront();
-                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
+                    			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` " + limitStr + ";";
                         		RunMovieQuery(query,null);    
                     		}
                     		//query7
@@ -537,7 +579,7 @@ public class MainController implements Initializable {
                             			+ " group by md.directorID, md.directorName "
                             			+ " having count(md.`movieID`) >=10 "
                             			+ " order by avg(m.rtAudienceScore) desc "
-                            			+ " LIMIT 10;";
+                            			+ limitStr + ";";
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
@@ -549,7 +591,7 @@ public class MainController implements Initializable {
                     					"group by ma.actorID, ma.actorName\n" + 
                     					"having count(ma.`movieID`) >=10\n" + 
                     					"order by avg(m.rtAudienceScore) desc\n" + 
-                    					"LIMIT 10;";
+                    					limitStr + ";";
                     			RunTopActorsQuery(query, null);
                     		}
                     }

@@ -20,14 +20,13 @@
        <TextField fx:id="searchText" layoutX="220.0" layoutY="20.0" prefHeight="25.0" prefWidth="300.0" promptText="Find Movies" />
        <ComboBox fx:id="choices" layoutX="530.0" layoutY="20.0" prefWidth="150.0" />
        <Label text="Limit to" layoutX="690" layoutY="25"/>
-       <Spinner fx:id="limitTo" layoutX="735" layoutY="20" prefWidth="70" editable="true" />
-       <Label text="results" layoutX="810" layoutY="25"/>
-       <Button layoutX="850.0" layoutY="20.0" mnemonicParsing="false" onAction="#SearchQueries" text="Search" />
+       <Spinner fx:id="limitTo" layoutX="740" layoutY="20" prefWidth="70" editable="true" />
+       <Label text="results" layoutX="815" layoutY="25"/>
+       <Button layoutX="860.0" layoutY="20.0" mnemonicParsing="false" onAction="#SearchQueries" text="Search" />
       <ListView fx:id="topList" layoutX="20.0" layoutY="75.0" prefHeight="200.0" prefWidth="190.0" />
       <ListView fx:id="listViewTags" layoutX="1090.0" layoutY="75.0" prefHeight="520.0" prefWidth="190.0" />
       <StackPane fx:id="overallStackPane" layoutX="220.0" layoutY="75.0" prefHeight="650.0" prefWidth="860.0">
          <children>
-      	  
             <TableView fx:id="MovieTable" prefHeight="620.0" prefWidth="820.0">
               <columns>
                   <TableColumn fx:id="MoviePicture1" prefWidth="165.0" text="Movie Picture1" />
@@ -39,7 +38,6 @@
             </TableView>
             <Pane prefHeight="200.0" prefWidth="200.0">
                <children>
-                  
                   <SplitPane fx:id="movieDetailsPane" dividerPositions="0.5" prefHeight="300.0" prefWidth="820.0" visible="false">
                      <items>
                         <ImageView fx:id="movieImg" fitHeight="289.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
@@ -65,10 +63,10 @@
                         <TableColumn fx:id="second" prefWidth="99.3350830078125" text="Second" />
                     </columns>
                   </TableView>
-                  <TableView layoutX="0.0" layoutY="400.0" prefHeight="220.0" prefWidth="820.0">
+                  <TableView fx:id="percTable" layoutX="0.0" layoutY="400.0" prefHeight="220.0" prefWidth="820.0">
                     <columns>
-                      <TableColumn id="genre" prefWidth="75.0" text="Genre" />
-                      <TableColumn id="percentagepercentage" prefWidth="124.72000122070312" text="percentage" />
+                      <TableColumn fx:id="genre" prefWidth="75.0" text="Genre" />
+                      <TableColumn fx:id="percentag" prefWidth="124.72000122070312" text="percentage" />
                     </columns>
                   </TableView>
                </children>
@@ -89,6 +87,5 @@
             </TableView>
          </children>
       </StackPane>
-       	
    </children>
 </AnchorPane>
