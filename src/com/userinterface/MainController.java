@@ -27,7 +27,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
@@ -46,7 +50,7 @@ public class MainController implements Initializable {
 	@FXML private ListView<String> topList;
 	@FXML private ListView<String> movieDetailsList;
 	@FXML private ImageView movieImg;
-	@FXML private SplitPane movieDetailsPane;
+	@FXML private Pane MovPane;
 	@FXML private ListView<String> listViewTags;
 	@FXML private StackPane overallStackPane;
 	@FXML private Pane userPane;
@@ -77,6 +81,7 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<TopActorsResult, Integer> actorMovieCount;
 	@FXML private TableColumn<TopActorsResult, Float> actorAverageAudienceScore;
 	
+	
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
@@ -105,24 +110,24 @@ public class MainController implements Initializable {
 		switch (choices.getValue()) 
         {
 			//query2
-            case "Title":  MovieTable.toFront();
+            case "Title":  MovPane.toFront();
                 query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	query="SELECT distinct t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
             	RunTagsQuery(query, null);
             	break;
             //query4
-            case "Director Name":  MovieTable.toFront();
+            case "Director Name":  MovPane.toFront();
             	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query5
-            case "Actor Name":  MovieTable.toFront();
+            case "Actor Name":  MovPane.toFront();
             	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query6
-            case "Tag":  MovieTable.toFront();
+            case "Tag":  MovPane.toFront();
             	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
@@ -133,7 +138,7 @@ public class MainController implements Initializable {
             	break;
             	
             	//query3 
-            case "Genre":  MovieTable.toFront();
+            case "Genre":  MovPane.toFront();
             	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg WHERE  m.`movieID`=mg.`movieID` AND mg.`genre` LIKE ?  ORDER BY m.`rtAudienceScore`" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
@@ -247,8 +252,27 @@ public class MainController implements Initializable {
 		
 		// Set cell value factory to tableview.
         // NB.PropertyValue Factory must be the same with the one set in custom Result POJO class.
-        
+//		Callback<TableColumn<Result,String>,TableCell<Result,String>> integerCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
+//			@Override
+//			public TableCell call(TableColumn p) {
+//				MyIntegerTableCell cell = new MyIntegerTableCell();
+//				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
+//				return cell;
+//				}
+//			};
+//	    
+//		Callback<TableColumn<Result,String>,TableCell<Result,String>> stringCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
+//				@Override
+//				public TableCell call(TableColumn p) {
+//				MyStringTableCell cell = new MyStringTableCell();
+//				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
+//				return cell;
+//				}
+//			};
+//			
+//        
         MovieTitle.setCellValueFactory(new PropertyValueFactory<Result,String>("title"));
+//        MovieTitle.setCellFactory(stringCellFactory);
         Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
         AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 
@@ -290,15 +314,30 @@ public class MainController implements Initializable {
             }
         });  */
 
+	
+		
 		
         // This binds the results from the DB to the MovieTable TableView control in the MainGUI.fxml file
         MovieTable.setItems(null);
         
         MovieTable.setItems(results);
+        // to get the selected rows
+        MovieTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+       
+        	   
 
 		
 
 	}
+	private void setSelection(IndexedCell cell) {
+    	if (cell.isSelected()) {
+    		System.out.println("False enter");
+    		MovieTable.getSelectionModel().clearSelection(cell.getIndex());
+    	} else {
+    		System.out.println("Select");
+    		MovieTable.getSelectionModel().select(cell.getIndex());
+    	}
+    }
 	// this is for Q9
 	public  void RunUserQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
@@ -541,14 +580,14 @@ public class MainController implements Initializable {
 				}
 			};
 	    */
-		Callback<TableColumn<Result,String>,TableCell<Result,String>> stringCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
-				@Override
-				public TableCell call(TableColumn p) {
-				MyStringTableCell cell = new MyStringTableCell();
-				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
-				return cell;
-				}
-			};
+//		Callback<TableColumn<Result,String>,TableCell<Result,String>> stringCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
+//				@Override
+//				public TableCell call(TableColumn p) {
+//				MyStringTableCell cell = new MyStringTableCell();
+//				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
+//				return cell;
+//				}
+//			};
 
 		choices.setItems(comboBoxcontent);
 		choices.getSelectionModel().select("Title");
@@ -556,6 +595,97 @@ public class MainController implements Initializable {
 		topList.setItems(listViewContent);
 
 		limitTo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
+		
+		//recomd part
+		ObservableList<String> recomComboBoxContent=FXCollections.observableArrayList("By Genre", "By Director","By Movie Star");
+		
+		recomComboBox.setItems(recomComboBoxContent);
+		recomComboBox.valueProperty().addListener(new ChangeListener<String>() {
+	        @Override public void changed(ObservableValue ov, String t, String t1) {
+	        	Result data = null ;
+	        	 for (TablePosition<Result, ?> pos : MovieTable.getSelectionModel().getSelectedCells()) {
+	            	 int row = pos.getRow();
+	            	    data = MovieTable.getItems().get(row);
+	            	    System.out.println("ttt"+data.getid());}
+	        	
+	            System.out.println("newval"+t1);
+	            String query=null;
+	            String actorid = null;
+	            
+	            switch (t1) 
+	            {
+	    			
+	                case "By Genre": {
+	                	query="";
+	                	break;
+	                }
+	                         
+	                case "By Director":  {
+	                	query="";
+	                	break;
+	                }
+	                case "By Movie Star": {
+	                	// prepare for the recomd queries
+	    	            final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
+	            		final String USER = "root";
+	            		final String PASS = "root";
+	            		try {
+	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	            			PreparedStatement ps=conn.prepareStatement("SELECT a.`actorID` FROM `movie_actors` a WHERE a.`movieID`=? AND a.`ranking` IN (SELECT  MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?) ;");
+	            			Integer movieID=data.getid();
+	            			System.out.println("movieID"+movieID);
+	            			ps.setInt(1, movieID);
+	            			ps.setInt(2, movieID);
+	            			ResultSet myRs = ps.executeQuery();
+	            			while(myRs.next()) {
+	            				 actorid= myRs.getString("actorID");	
+	            			}
+	            			
+	            			myRs.close();
+	            			ps.close();
+	            			conn.close();
+	            		}
+	            		catch (Exception e){
+	            			
+	            			e.printStackTrace();
+	            		}
+	            		/////////////////////////////
+	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	System.out.println("actorid"+actorid);
+	                	 break;
+	                }
+	                			            
+	        }
+	            isSearch=false;
+	            RunMovieQuery(query,actorid);
+	            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
+					
+	            	@Override
+					public ListCell<Result> call(ListView<Result> param) {
+						ListCell<Result> cell=new ListCell<Result>(){
+							@Override
+							protected void updateItem(Result res, boolean empty){
+								super.updateItem(res, empty);
+								if (res != null){
+									ImageView imageview = new ImageView();
+									imageview.setImage(new Image(res.getRtPictureURL()));
+		                            setGraphic(imageview);
+		                            setText(res.getTitle());
+								}
+							}
+							
+						};
+	            		return cell;
+	            		
+						
+					}
+	            }
+	        );
+	            recomList.setItems(results);  
+	            
+	        }
+	        
+	    });
 		
 		//TopList Change Listener
 		topList.getSelectionModel().selectedItemProperty().addListener(
@@ -569,7 +699,7 @@ public class MainController implements Initializable {
 
                     		//query1 
                     		if (new_val.equals("Top popular movies")) {
-                    			MovieTable.toFront();
+                    			MovPane.toFront();
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` " + limitStr + ";";
                         		RunMovieQuery(query,null);    
                     		}
@@ -602,6 +732,7 @@ public class MainController implements Initializable {
 				);
 	}
 	
+	// this is to show the detail page
 	class MyIntegerTableCell extends TableCell<Result, Integer> {
 		@Override
 		public void updateItem(Integer item, boolean empty) {
@@ -613,7 +744,7 @@ public class MainController implements Initializable {
 			return getItem() == null ? "" : getItem().toString();
 			}
 		}
-	
+	// this is also to show the detail page
 	class MyStringTableCell extends TableCell<Result, String> {
 		@Override
 		public void updateItem(String item, boolean empty) {
@@ -626,99 +757,21 @@ public class MainController implements Initializable {
 			}
 		}
 	
-	
+	// this is the action in the detail page
 	class MyEventHandler implements EventHandler<MouseEvent> {
 		@Override
 		public void handle(MouseEvent t) {
+			
+			System.out.println("in the handler");
+			MovPane.toFront();
 	
-			MovieTable.setVisible(false);
-			movieDetailsPane.setVisible(true);
-			recomList.setVisible(true);
+			
 			
 			final Result r= MovieTable.getSelectionModel().getSelectedItem();
 			movieImg.setImage(new Image(r.getRtPictureURL()));
 			ObservableList<String> detailslistContent=FXCollections.observableArrayList("Title: "+r.getTitle(),"Year: "+r.getYear(),"Audience Score: "+r.getRtAudienceScore());
 			movieDetailsList.setItems(detailslistContent);
-			ObservableList<String> recomComboBoxContent=FXCollections.observableArrayList("By Genre", "By Director","By Movie Star");
 			
-			recomComboBox.setVisible(true);
-			recomComboBox.setItems(recomComboBoxContent);
-			recomComboBox.valueProperty().addListener(new ChangeListener<String>() {
-		        @Override public void changed(ObservableValue ov, String t, String t1) {
-		            System.out.println("newval"+t1);
-		            String query=null;
-		            String actorid = null;
-		            switch (t1) 
-		            {
-		    			
-		                case "By Genre": {
-		                	query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m;";;
-		                	break;
-		                }
-		                         
-		                case "By Director":  query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL`, t.`value` FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";;
-	                    		 break;
-		                case "By Movie Star": {
-		                	final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
-		            		final String USER = "root";
-		            		final String PASS = "root";
-		            		try {
-		            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-		            			PreparedStatement ps=conn.prepareStatement("SELECT a.`actorID` FROM `movie_actors` a WHERE a.`movieID`=? AND a.`ranking` IN (SELECT  MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?) ;");
-		            			Integer movieID=r.getid();
-		            			System.out.println("movieID"+movieID);
-		            			ps.setInt(1, movieID);
-		            			ps.setInt(2, movieID);
-		            			ResultSet myRs = ps.executeQuery();
-		            			while(myRs.next()) {
-		            				 actorid= myRs.getString("actorID");	
-		            			}
-		            			
-		            			myRs.close();
-		            			ps.close();
-		            			conn.close();
-		            		}
-		            		catch (Exception e){
-		            			
-		            			e.printStackTrace();
-		            		}
-		            		
-		                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
-		                	System.out.println("actorid"+actorid);
-		                	 break;
-		                }
-		                			            
-		        }
-		            isSearch=false;
-		            RunMovieQuery(query,actorid);
-		            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
-						
-		            	@Override
-						public ListCell<Result> call(ListView<Result> param) {
-							ListCell<Result> cell=new ListCell<Result>(){
-								@Override
-								protected void updateItem(Result res, boolean empty){
-									super.updateItem(res, empty);
-									if (res != null){
-										ImageView imageview = new ImageView();
-										imageview.setImage(new Image(res.getRtPictureURL()));
-			                            setGraphic(imageview);
-			                            setText(res.getTitle());
-									}
-								}
-								
-							};
-		            		return cell;
-		            		
-							
-						}
-		            }
-		        );
-		            recomList.setItems(results);  
-		            
-		        }
-		        
-		    });
 		}
 	}
 }
