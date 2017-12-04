@@ -68,6 +68,11 @@ public class MainController implements Initializable {
 
 	@FXML private Spinner limitTo;
 	
+	@FXML private TableView<TopActorsResult> tableViewTopActorsResult;
+	@FXML private TableColumn<TopActorsResult, String> actorNameColumn;
+	@FXML private TableColumn<TopActorsResult, Integer> actorMovieCount;
+	@FXML private TableColumn<TopActorsResult, Float> actorAverageAudienceScore;
+	
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
@@ -75,6 +80,7 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
+	public ObservableList<TopActorsResult> actorsResults;
 
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
@@ -417,7 +423,64 @@ public class MainController implements Initializable {
        tableViewTopDirectorsResult.setItems(directorResults);
 	}
 	
-	
+	public  void RunTopActorsQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a TopActorsResult list object that will hold our query result data
+			actorsResults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, "%"+searchParameter+"%");				
+				}
+			else if (otherpar != null && !otherpar.isEmpty()){
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
+			}
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			
+			// 4. Process the result set
+            while (rs.next()) {
+            	actorsResults.add(new TopActorsResult(
+            			rs.getString("actorID"),
+            			rs.getString("actorName"),
+            			rs.getInt("actorMovieCount"),
+            			rs.getFloat("averageAudienceScore")));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Bind director columns
+		actorNameColumn.setCellValueFactory(new PropertyValueFactory<TopActorsResult,String>("actorName"));
+		actorMovieCount.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Integer>("actorMovieCount"));
+		actorAverageAudienceScore.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Float>("averageAudienceScore"));
+
+        // This binds the results from the DB to the Director TableView control in the MainGUI.fxml file
+       tableViewTopActorsResult.setItems(null);
+       tableViewTopActorsResult.setItems(actorsResults);
+	}
 	
 	
 	
@@ -478,10 +541,17 @@ public class MainController implements Initializable {
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
-                    		else if (new_val.equals("Top popular actors"))
-                    			query="";
-                    		
-                    		//topList.getSelectionModel().clearSelection();
+                    		else if (new_val.equals("Top popular actors")) {
+                    			tableViewTopActorsResult.toFront();
+                    			query="select ma.`actorID`,  ma.`actorName`, count(ma.actorID) as actorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore\n" + 
+                    					"from `movie_actors` ma\n" + 
+                    					"join movies m on m.movieID = ma.movieID\n" + 
+                    					"group by ma.actorID, ma.actorName\n" + 
+                    					"having count(ma.`movieID`) >=10\n" + 
+                    					"order by avg(m.rtAudienceScore) desc\n" + 
+                    					"LIMIT 10;";
+                    			RunTopActorsQuery(query, null);
+                    		}
                     }
                 }
 				);
