@@ -57,14 +57,14 @@ having count(md.`movieID`) >=10
 order by avg(m.rtAudienceScore) desc
 LIMIT 10;
 
-Query 8 (not yet): Provide a “See the Top Popular Actors” feature. Show a ranking of the top-10 actors with the highest average Rotten Tomatoes audience scores of all the movies which he or she has appeared in. To be on the list, one actor should appear in at least k movies, where k is a parameter set by user.
+Query 8: Provide a “See the Top Popular Actors” feature. Show a ranking of the top-10 actors with the highest average Rotten Tomatoes audience scores of all the movies which he or she has appeared in. To be on the list, one actor should appear in at least k movies, where k is a parameter set by user.
 (the same question as 7)
-SELECT ma.`actorName`, ma.`actorID`, m.`movieID`
-FROM `movies` m, `movie_actors` ma
-WHERE m.`movieID`=ma.`movieID`
-GROUP BY ma.`actorID`
-HAVING COUNT(m.`movieID`) >=2
-ORDER BY m.`rtAudienceScore`
+select ma.`actorID`,  ma.`actorName`, count(ma.actorID) as actorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore
+from `movie_actors` ma
+join movies m on m.movieID = ma.movieID
+group by ma.actorID, ma.actorName
+having count(ma.`movieID`) >=10
+order by avg(m.rtAudienceScore) desc
 LIMIT 10;
 
 Query 9: For any specified user, provide a way to show the timeline of all the movies she has rated, with the rating she gave to each movie. Show the movie breakdown by genre, i.e., the percentage of movies in each genre out of all the movies she has watched.
