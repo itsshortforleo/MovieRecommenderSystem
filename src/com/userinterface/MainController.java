@@ -69,6 +69,10 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<userInfo, Integer> minute;
 	@FXML private TableColumn<userInfo, Integer> second;
 	
+	@FXML private TableView<userGenre> percTable;
+	@FXML private TableColumn<userGenre, Float> percentag;
+	@FXML private TableColumn<userGenre, String> genre;
+	
 	@FXML private TableView<TopDirectorsResult> tableViewTopDirectorsResult;
 	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
 	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
@@ -81,7 +85,8 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
-
+	public ObservableList<userGenre> genrePerc;
+	
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
@@ -294,8 +299,11 @@ public class MainController implements Initializable {
         Integer totalMovieRecoreds=0;
         PreparedStatement ps = null;
         PreparedStatement ps2 = null;
+        PreparedStatement ps3 = null;
+        
         ResultSet rs = null;
         ResultSet rs2 = null;
+        ResultSet rs3 = null;
         String searchParameter=null;
         HashMap<String,Integer> hmGenre=new HashMap<String,Integer>();
         
@@ -323,7 +331,7 @@ public class MainController implements Initializable {
                 		rs.getInt("date_minute"),
                 		rs.getInt("date_second")));
             }
-            
+            // handling the percentage table
             ps2 = conn.prepareStatement("SELECT COUNT(urm.userID) as totalMovies FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
             ps2.setString(1, searchParameter);
             rs2 =ps2.executeQuery();
@@ -331,6 +339,30 @@ public class MainController implements Initializable {
             	 totalMovieRecoreds=rs2.getInt("totalMovies");
             }
             System.out.println("totalRecored"+ totalMovieRecoreds);
+            
+            // to count every type
+            String[] Genre = { "Action","Adventure","Animation","Animation","Crime", "Documentary", "Drama", "Fantasy","Film-Noir","Horror","IMAX","Musical","Mystery","Romance","Sci-Fi","Short","Thriller","War","Western"};
+            genrePerc = FXCollections.observableArrayList();
+            for (String s: Genre) {           
+                    //Do your stuff here
+            	ps3 = conn.prepareStatement("SELECT COUNT(urm.movieID) as totalMovies FROM `movies` m, `user_rated_movies` urm, `movie_genres` mg WHERE m.`movieID`=urm.`movieID` AND m.`movieID`=mg.`movieID` AND urm.`userID` =? AND mg.`genre` LIKE ? ;");
+                ps3.setString(1, searchParameter);
+                ps3.setString(2, "%"+s+"%");
+                rs3 =ps3.executeQuery();
+                System.out.println(ps3);
+                if (rs3.next()) {
+                while (rs3.next()) {
+                	genrePerc.add(new userGenre(rs3.getFloat("totalMovies"),s));
+                	System.out.println(s);
+                	 
+                }
+                    
+                }else{
+                	System.out.println("nothing");
+                }
+                	
+                }
+            
             
             
         } 
@@ -363,6 +395,12 @@ public class MainController implements Initializable {
        
 		userTable.setItems(null);
 		userTable.setItems(Userresults);
+		
+		genre.setCellValueFactory(new PropertyValueFactory<userGenre,String>("genre"));
+		percentag.setCellValueFactory(new PropertyValueFactory<userGenre,Float>("perc"));
+		percTable.setItems(null);
+		percTable.setItems(genrePerc);
+		
 		
 
 	}
