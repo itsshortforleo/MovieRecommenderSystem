@@ -20,7 +20,7 @@
       
       <ComboBox fx:id="choices" layoutX="532.0" layoutY="25.0" prefWidth="150.0" />
       
-      <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="191.0" prefWidth="195.0" />
+      <ListView fx:id="topList" layoutX="20.0" layoutY="74.0" prefHeight="191.0" prefWidth="195.0"  />
       <ListView fx:id="listViewTags" layoutX="1067.0" layoutY="73.0" prefHeight="523.0" prefWidth="195.0" />
       <StackPane fx:id="overallStackPane" layoutX="246.0" layoutY="98.0" prefHeight="618.0" prefWidth="805.0">
          <children>

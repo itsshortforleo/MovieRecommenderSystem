@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -118,7 +119,7 @@ public class MainController implements Initializable {
             	RunMovieQuery(query, null);
             	break;
             //query9 
-            case "User Name":  userPane.toFront();
+            case "User ID":  userPane.toFront();
             	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;";
             	RunUserQuery(query, null);
             	break;
@@ -280,7 +281,9 @@ public class MainController implements Initializable {
 		
         // This binds the results from the DB to the MovieTable TableView control in the MainGUI.fxml file
         MovieTable.setItems(null);
+        
         MovieTable.setItems(results);
+
 		
 
 	}
@@ -288,21 +291,22 @@ public class MainController implements Initializable {
 	public  void RunUserQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
         Connection conn = dc.Connect();
+        Integer totalRecored=0;
         PreparedStatement ps = null;
+        PreparedStatement ps2 = null;
         ResultSet rs = null;
+        ResultSet rs2 = null;
+        String searchParameter=null;
+        HashMap<String,Integer> hmGenre=new HashMap<String,Integer>();
+        
 		try {
 			// results is a Result list object that will hold our query result data
 			Userresults = FXCollections.observableArrayList();
-            
-            
-			ps = conn.prepareStatement(query);
-
-			if (isSearch==true){
-				String searchParameter=searchText.getText();
+         	ps = conn.prepareStatement(query);
+         	if (isSearch==true){
+         	   searchParameter=searchText.getText();
 				ps.setString(1, searchParameter);				
 				}
-			
-			
             // Execute query and store result in a result set
 			rs = ps.executeQuery();
 			System.out.println(ps);
@@ -319,6 +323,16 @@ public class MainController implements Initializable {
                 		rs.getInt("date_minute"),
                 		rs.getInt("date_second")));
             }
+            
+            ps2 = conn.prepareStatement("SELECT COUNT(*) AS total FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ;");
+            ps2.setString(1, searchParameter);
+            rs2 =ps2.executeQuery();
+            while (rs2.next()) {
+            	 totalRecored=rs.getInt("total");
+            }
+            System.out.println("totalRecored"+ totalRecored);
+            
+            
         } 
 		catch (SQLException ex) {
             System.err.println("Error" + ex);
@@ -461,7 +475,6 @@ public class MainController implements Initializable {
                     			MovieTable.toFront();
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` LIMIT 5;";
                         		RunMovieQuery(query,null);    
-
                     		}
                     		//query7
                     		else if (new_val.equals("Top popular directors")) {
