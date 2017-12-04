@@ -124,10 +124,7 @@ public class MainController implements Initializable {
             	break;
              
         }
-		
-		
-			
-		
+		isSearch = false;
 	}
 
 	// This method will run the related tags query and map the results to the listViewTags listview
@@ -366,11 +363,7 @@ public class MainController implements Initializable {
             
 			ps = conn.prepareStatement(query);
 
-			if (isSearch==true){
-				String searchParameter=searchText.getText();
-				ps.setString(1, "%"+searchParameter+"%");				
-				}
-			else if (otherpar != null && !otherpar.isEmpty()){
+			if (otherpar != null && !otherpar.isEmpty()){
 				System.out.println(otherpar);
 				ps.setString(1,"%"+ otherpar+"%");
 			}
