@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -33,6 +35,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
@@ -53,10 +56,23 @@ public class MainController implements Initializable {
 	@FXML private SplitPane movieDetailsPane;
 	@FXML private ListView<String> listViewTags;
 	@FXML private StackPane overallStackPane;
+	@FXML private Pane userPane;
+	@FXML private TableView<userInfo> userTable;
+	@FXML private TableColumn<userInfo, Integer> userid;
+	@FXML private TableColumn<userInfo, String> movieTitle;
+	@FXML private TableColumn<userInfo, Integer> rating;
+	@FXML private TableColumn<userInfo, Integer> year;
+	@FXML private TableColumn<userInfo, Integer> month;
+	@FXML private TableColumn<userInfo, Integer> day;
+	@FXML private TableColumn<userInfo, Integer> hour;
+	@FXML private TableColumn<userInfo, Integer> minute;
+	@FXML private TableColumn<userInfo, Integer> second;
+	
 	private boolean isSearch=false;
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
+	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
@@ -68,48 +84,41 @@ public class MainController implements Initializable {
 		isSearch=true;
 		
 		// Adding it as a query list rather than a single query so that we can support multiple queries per action
-		List<String> queryList = new ArrayList<String>();
-		MovieTable.toFront();
+		String query = null;
+		
 		switch (choices.getValue()) 
         {
 			//query2
-            case "Title":  MovieTable.setVisible(true);
-            	queryList.add("SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?;");
-            	queryList.add("SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;");
+            case "Title":  MovieTable.toFront();
+                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?;";
+            	RunMovieQuery(query, null);
+            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
+            	RunTagsQuery(query, null);
             	break;
             //query4
-            case "Director Name":  MovieTable.setVisible(true);
-            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;");
-                break;
+            case "Director Name":  MovieTable.toFront();
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+            	RunMovieQuery(query, null);
+            	break;
             //query5
-            case "Actor Name":  MovieTable.setVisible(true);
-            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;");
-                break;
+            case "Actor Name":  MovieTable.toFront();
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+            	RunMovieQuery(query, null);
+            	break;
             //query6
-            case "Tag":  MovieTable.setVisible(true);
-            	queryList.add("SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);");
-                break;
+            case "Tag":  MovieTable.toFront();
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+            	RunMovieQuery(query, null);
+            	break;
             //query9 
-                // TODO this is not yet implemented
-            case "User Name":  MovieTable.setVisible(false);
-            	queryList.add("SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;");
-                break;
+            case "User Name":  userPane.toFront();
+            	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;";
+            	RunUserQuery(query, null);
+            	break;
              
         }
 		
-		int counter = 0;
-		for (String query : queryList) {
-			// The first time this runs, it's a movie query
-			if(counter == 0) {
-				RunMovieQuery(query, null);
-			}
-			// The second time it runs, it's a tags query
-			else if (counter == 1) {
-				RunTagsQuery(query, null);
-			}
-			counter++;
-			
-		}
+		
 			
 		
 	}
@@ -163,6 +172,7 @@ public class MainController implements Initializable {
 		listViewTags.setItems(tagsResults);
 		
 	}
+	
 
 	public  void RunMovieQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
@@ -265,7 +275,75 @@ public class MainController implements Initializable {
 		
 
 	}
-	
+	// this is for Q9
+	public  void RunUserQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a Result list object that will hold our query result data
+			Userresults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, searchParameter);				
+				}
+			
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			System.out.println(ps);
+			// 4. Process the result set
+            while (rs.next()) {
+            	Userresults.add(new userInfo(
+                		rs.getInt("userID"), 
+                		rs.getString("title"),
+                		rs.getInt("rating"),
+                		rs.getInt("date_year"),
+                		rs.getInt("date_month"),
+                		rs.getInt("date_day"),
+                		rs.getInt("date_hour"),
+                		rs.getInt("date_minute"),
+                		rs.getInt("date_second")));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Set cell value factory to tableview.
+		
+		userid.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("userid"));
+		movieTitle.setCellValueFactory(new PropertyValueFactory<userInfo,String>("title"));
+		rating.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("rating"));
+		year.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("year"));
+		month.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("month"));
+		day.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("day"));
+		hour.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("hour"));
+		minute.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("minute"));
+		second.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("second"));
+		
+       
+		userTable.setItems(null);
+		userTable.setItems(Userresults);
+		
+
+	}
+	/////////////////////////////////////
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

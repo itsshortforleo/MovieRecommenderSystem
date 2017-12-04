@@ -47,12 +47,25 @@
                   <ListView fx:id="recomList" orientation="HORIZONTAL" prefHeight="171.0" prefWidth="813.0" visible="false" />
                </children>
             </Pane>
-            <Pane prefHeight="200.0" prefWidth="200.0">
+            <Pane fx:id="userPane" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView layoutY="3.0" prefHeight="308.0" prefWidth="803.0">
+                  <TableView fx:id="userTable" layoutY="3.0" prefHeight="308.0" prefWidth="803.0">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="C1" />
-                      <TableColumn prefWidth="75.0" text="C2" />
+                      <TableColumn fx:id="userid" prefWidth="71.15739440917969" text="User Id" />
+                      <TableColumn fx:id="movieTitle" prefWidth="129.34259033203125" text="Movie Title" />
+                        <TableColumn fx:id="rating" prefWidth="93.23342895507812" text="Rating " />
+                        <TableColumn fx:id="year" prefWidth="99.04071044921875" text="Year" />
+                        <TableColumn fx:id="month" prefWidth="86.4593505859375" text="Month" />
+                        <TableColumn fx:id="day" prefWidth="78.596435546875" text="Day" />
+                        <TableColumn fx:id="hour" prefWidth="93.903564453125" text="Hour" />
+                        <TableColumn fx:id="minute" prefWidth="70.2462158203125" text="Minute" />
+                        <TableColumn fx:id="second" prefWidth="99.3350830078125" text="Second" />
+                    </columns>
+                  </TableView>
+                  <TableView layoutX="-4.0" layoutY="402.0" prefHeight="217.0" prefWidth="811.0">
+                    <columns>
+                      <TableColumn id="genre" prefWidth="75.0" text="Genre" />
+                      <TableColumn id="percentagepercentage" prefWidth="124.72000122070312" text="percentage" />
                     </columns>
                   </TableView>
                </children>
