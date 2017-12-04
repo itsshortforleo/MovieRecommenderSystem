@@ -77,7 +77,7 @@ public class MainController implements Initializable {
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
-	ObservableList<String> comboBoxcontent = FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User Name");
+	ObservableList<String> comboBoxcontent = FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User ID","Genre");
 	ObservableList<String> listViewContent = FXCollections.observableArrayList("Top popular movies","Top popular directors","Top popular actors");
 
 	public void SearchQueries(){
