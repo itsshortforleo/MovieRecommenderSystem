@@ -23,15 +23,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -73,6 +65,8 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
 	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
 	@FXML private TableColumn<TopDirectorsResult, Float> directorAverageAudienceScore;
+
+	@FXML private Spinner limitTo;
 	
 	private boolean isSearch=false;
 	
@@ -90,7 +84,10 @@ public class MainController implements Initializable {
 
 	public void SearchQueries(){
 		isSearch=true;
-		
+		String limitStr = "";
+		if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
+			limitStr = "LIMIT " + limitTo.getEditor().getText();
+
 		// Adding it as a query list rather than a single query so that we can support multiple queries per action
 		String query = null;
 		
@@ -98,29 +95,29 @@ public class MainController implements Initializable {
         {
 			//query2
             case "Title":  MovieTable.toFront();
-                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?;";
+                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
-            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
+            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?" + limitStr + ";";
             	RunTagsQuery(query, null);
             	break;
             //query4
             case "Director Name":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query5
             case "Actor Name":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query6
             case "Tag":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query9 
             case "User ID":  userPane.toFront();
-            	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;";
+            	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`" + limitStr + ";";
             	RunUserQuery(query, null);
             	break;
              
@@ -426,7 +423,7 @@ public class MainController implements Initializable {
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+
 		dc = new DbConnection();
 		
 		MovieTable.setEditable(false);
@@ -449,13 +446,12 @@ public class MainController implements Initializable {
 				}
 			};
 
-		
 		choices.setItems(comboBoxcontent);
-		
 		choices.getSelectionModel().select("Title");
 		
 		topList.setItems(listViewContent);
-		
+
+		limitTo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
 		
 		//TopList Change Listener
 		topList.getSelectionModel().selectedItemProperty().addListener(
