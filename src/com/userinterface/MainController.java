@@ -596,7 +596,7 @@ public class MainController implements Initializable {
 
 		limitTo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
 		
-		//recomd part
+		//Recommendation part & Recommendation Change Listener
 		ObservableList<String> recomComboBoxContent=FXCollections.observableArrayList("By Genre", "By Director","By Movie Star");
 		
 		recomComboBox.setItems(recomComboBoxContent);
@@ -614,18 +614,19 @@ public class MainController implements Initializable {
 	            
 	            switch (t1) 
 	            {
-	    			
+	    			// Recommendation#1
 	                case "By Genre": {
 	                	query="";
 	                	break;
 	                }
-	                         
+	                // Recommendation#2         
 	                case "By Director":  {
-	                	query="";
+	                	query="select  m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ('michael_mann',  'billy_wilder') order by m.`rtAudienceScore` LIMIT 5;";
 	                	break;
 	                }
+	                // EXTRA Recommendation
 	                case "By Movie Star": {
-	                	// prepare for the recomd queries
+	                	// prepare  var for the Recommendation query
 	    	            final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
 	            		final String USER = "root";
 	            		final String PASS = "root";
@@ -649,7 +650,7 @@ public class MainController implements Initializable {
 	            			
 	            			e.printStackTrace();
 	            		}
-	            		/////////////////////////////
+	            		//Recommendation query
 	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
 	                	System.out.println("actorid"+actorid);
 	                	 break;
@@ -732,46 +733,6 @@ public class MainController implements Initializable {
 				);
 	}
 	
-	// this is to show the detail page
-	class MyIntegerTableCell extends TableCell<Result, Integer> {
-		@Override
-		public void updateItem(Integer item, boolean empty) {
-			super.updateItem(item, empty);
-			setText(empty ? null : getString());
-			setGraphic(null);
-			}
-		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
-			}
-		}
-	// this is also to show the detail page
-	class MyStringTableCell extends TableCell<Result, String> {
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-			setText(empty ? null : getString());
-			setGraphic(null);
-			}
-		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
-			}
-		}
 	
-	// this is the action in the detail page
-	class MyEventHandler implements EventHandler<MouseEvent> {
-		@Override
-		public void handle(MouseEvent t) {
-			
-			System.out.println("in the handler");
-			MovPane.toFront();
-	
-			
-			
-			final Result r= MovieTable.getSelectionModel().getSelectedItem();
-			movieImg.setImage(new Image(r.getRtPictureURL()));
-			ObservableList<String> detailslistContent=FXCollections.observableArrayList("Title: "+r.getTitle(),"Year: "+r.getYear(),"Audience Score: "+r.getRtAudienceScore());
-			movieDetailsList.setItems(detailslistContent);
-			
-		}
-	}
+
 }
