@@ -108,7 +108,7 @@ public class MainController implements Initializable {
             case "Title":  MovieTable.toFront();
                 query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
-            	query="SELECT distinct t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?" + limitStr + ";";
+            	query="SELECT distinct t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
             	RunTagsQuery(query, null);
             	break;
             //query4
