@@ -23,15 +23,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -77,6 +69,13 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
 	@FXML private TableColumn<TopDirectorsResult, Integer> directorMovieCount;
 	@FXML private TableColumn<TopDirectorsResult, Float> directorAverageAudienceScore;
+
+	@FXML private Spinner limitTo;
+	
+	@FXML private TableView<TopActorsResult> tableViewTopActorsResult;
+	@FXML private TableColumn<TopActorsResult, String> actorNameColumn;
+	@FXML private TableColumn<TopActorsResult, Integer> actorMovieCount;
+	@FXML private TableColumn<TopActorsResult, Float> actorAverageAudienceScore;
 	
 	private boolean isSearch=false;
 	
@@ -85,8 +84,13 @@ public class MainController implements Initializable {
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
+<<<<<<< HEAD
 	public ObservableList<userGenre> genrePerc;
 	
+=======
+	public ObservableList<TopActorsResult> actorsResults;
+
+>>>>>>> branch 'master' of https://github.com/musicallycursed/CSC204Project.git
 	public Node currentUI=MovieTable;
 	private DbConnection dc;
 	
@@ -95,7 +99,10 @@ public class MainController implements Initializable {
 
 	public void SearchQueries(){
 		isSearch=true;
-		
+		String limitStr = "";
+		if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
+			limitStr = "LIMIT " + limitTo.getEditor().getText();
+
 		// Adding it as a query list rather than a single query so that we can support multiple queries per action
 		String query = null;
 		
@@ -103,37 +110,34 @@ public class MainController implements Initializable {
         {
 			//query2
             case "Title":  MovieTable.toFront();
-                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?;";
+                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
-            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
+            	query="SELECT t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?" + limitStr + ";";
             	RunTagsQuery(query, null);
             	break;
             //query4
             case "Director Name":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?;";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query5
             case "Actor Name":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?;";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query6
             case "Tag":  MovieTable.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`);";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query9 
             case "User ID":  userPane.toFront();
-            	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`;";
+            	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`" + limitStr + ";";
             	RunUserQuery(query, null);
             	break;
              
         }
-		
-		
-			
-		
+		isSearch = false;
 	}
 
 	// This method will run the related tags query and map the results to the listViewTags listview
@@ -418,11 +422,7 @@ public class MainController implements Initializable {
             
 			ps = conn.prepareStatement(query);
 
-			if (isSearch==true){
-				String searchParameter=searchText.getText();
-				ps.setString(1, "%"+searchParameter+"%");				
-				}
-			else if (otherpar != null && !otherpar.isEmpty()){
+			if (otherpar != null && !otherpar.isEmpty()){
 				System.out.println(otherpar);
 				ps.setString(1,"%"+ otherpar+"%");
 			}
@@ -465,13 +465,70 @@ public class MainController implements Initializable {
        tableViewTopDirectorsResult.setItems(directorResults);
 	}
 	
-	
+	public  void RunTopActorsQuery(String query, String otherpar) {
+		// Initializing these variables out here so that they're inside the try catch scope
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a TopActorsResult list object that will hold our query result data
+			actorsResults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+
+			if (isSearch==true){
+				String searchParameter=searchText.getText();
+				ps.setString(1, "%"+searchParameter+"%");				
+				}
+			else if (otherpar != null && !otherpar.isEmpty()){
+				System.out.println(otherpar);
+				ps.setString(1,"%"+ otherpar+"%");
+			}
+			
+            // Execute query and store result in a result set
+			rs = ps.executeQuery();
+			
+			// 4. Process the result set
+            while (rs.next()) {
+            	actorsResults.add(new TopActorsResult(
+            			rs.getString("actorID"),
+            			rs.getString("actorName"),
+            			rs.getInt("actorMovieCount"),
+            			rs.getFloat("averageAudienceScore")));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		// Bind director columns
+		actorNameColumn.setCellValueFactory(new PropertyValueFactory<TopActorsResult,String>("actorName"));
+		actorMovieCount.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Integer>("actorMovieCount"));
+		actorAverageAudienceScore.setCellValueFactory(new PropertyValueFactory<TopActorsResult,Float>("averageAudienceScore"));
+
+        // This binds the results from the DB to the Director TableView control in the MainGUI.fxml file
+       tableViewTopActorsResult.setItems(null);
+       tableViewTopActorsResult.setItems(actorsResults);
+	}
 	
 	
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+
 		dc = new DbConnection();
 		
 		MovieTable.setEditable(false);
@@ -494,13 +551,12 @@ public class MainController implements Initializable {
 				}
 			};
 
-		
 		choices.setItems(comboBoxcontent);
-		
 		choices.getSelectionModel().select("Title");
 		
 		topList.setItems(listViewContent);
-		
+
+		limitTo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
 		
 		//TopList Change Listener
 		topList.getSelectionModel().selectedItemProperty().addListener(
@@ -527,10 +583,17 @@ public class MainController implements Initializable {
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
-                    		else if (new_val.equals("Top popular actors"))
-                    			query="";
-                    		
-                    		//topList.getSelectionModel().clearSelection();
+                    		else if (new_val.equals("Top popular actors")) {
+                    			tableViewTopActorsResult.toFront();
+                    			query="select ma.`actorID`,  ma.`actorName`, count(ma.actorID) as actorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore\n" + 
+                    					"from `movie_actors` ma\n" + 
+                    					"join movies m on m.movieID = ma.movieID\n" + 
+                    					"group by ma.actorID, ma.actorName\n" + 
+                    					"having count(ma.`movieID`) >=10\n" + 
+                    					"order by avg(m.rtAudienceScore) desc\n" + 
+                    					"LIMIT 10;";
+                    			RunTopActorsQuery(query, null);
+                    		}
                     }
                 }
 				);
