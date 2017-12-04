@@ -66,7 +66,7 @@
                   <TableView fx:id="percTable" layoutX="0.0" layoutY="400.0" prefHeight="220.0" prefWidth="820.0">
                     <columns>
                       <TableColumn fx:id="genre" prefWidth="75.0" text="Genre" />
-                      <TableColumn fx:id="percentag" prefWidth="124.72000122070312" text="percentage" />
+                      <TableColumn fx:id="percent" prefWidth="124.72000122070312" text="percentage" />
                     </columns>
                   </TableView>
                </children>

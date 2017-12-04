@@ -62,7 +62,7 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<userInfo, Integer> second;
 	
 	@FXML private TableView<userGenre> percTable;
-	@FXML private TableColumn<userGenre, Float> percentag;
+	@FXML private TableColumn<userGenre, Float> percent;
 	@FXML private TableColumn<userGenre, String> genre;
 	
 	@FXML private TableView<TopDirectorsResult> tableViewTopDirectorsResult;
@@ -131,6 +131,13 @@ public class MainController implements Initializable {
             	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`" + limitStr + ";";
             	RunUserQuery(query, null);
             	break;
+            	
+            	//query3 
+            case "Genre":  MovieTable.toFront();
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg WHERE  m.`movieID`=mg.`movieID` AND mg.`genre` LIKE ?  ORDER BY m.`rtAudienceScore`" + limitStr + ";";
+            	RunMovieQuery(query, null);
+            	break;
+            	
              
         }
 		isSearch = false;
@@ -350,17 +357,14 @@ public class MainController implements Initializable {
                 ps3.setString(2, "%"+s+"%");
                 rs3 =ps3.executeQuery();
                 System.out.println(ps3);
-                if (rs3.next()) {
                 while (rs3.next()) {
-                	genrePerc.add(new userGenre(rs3.getFloat("totalMovies"),s));
-                	System.out.println(s);
+                	float percnta=(rs3.getFloat("totalMovies")/totalMovieRecoreds)*100;
+                	genrePerc.add(new userGenre(percnta,s));
+                	System.out.println(percnta);
                 	 
                 }
                     
-                }else{
-                	System.out.println("nothing");
-                }
-                	
+              
                 }
             
             
@@ -391,13 +395,12 @@ public class MainController implements Initializable {
 		hour.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("hour"));
 		minute.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("minute"));
 		second.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("second"));
-		
-       
 		userTable.setItems(null);
 		userTable.setItems(Userresults);
 		
 		genre.setCellValueFactory(new PropertyValueFactory<userGenre,String>("genre"));
-		percentag.setCellValueFactory(new PropertyValueFactory<userGenre,Float>("perc"));
+		percent.setCellValueFactory(new PropertyValueFactory<userGenre,Float>("perc"));
+
 		percTable.setItems(null);
 		percTable.setItems(genrePerc);
 		
@@ -564,7 +567,7 @@ public class MainController implements Initializable {
 							if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
 								limitStr = "LIMIT " + limitTo.getEditor().getText();
 
-                    		//query1 // need to implement query3 here
+                    		//query1 
                     		if (new_val.equals("Top popular movies")) {
                     			MovieTable.toFront();
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` " + limitStr + ";";
@@ -647,7 +650,7 @@ public class MainController implements Initializable {
 		            String actorid = null;
 		            switch (t1) 
 		            {
-		    			//query2
+		    			
 		                case "By Genre": {
 		                	query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m;";;
 		                	break;
