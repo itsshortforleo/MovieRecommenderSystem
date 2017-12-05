@@ -759,7 +759,7 @@ public class MainController implements Initializable {
 	            				 dircidList.append("'"+drid+"'");
 	            				 
 	            			}
-	            			System.out.println("The director id for the selected movies: "+drid);
+	            			System.out.println("The director id for the selected movies: "+dircidList);
 	            			
 	            		usePar=false;
 	                	query="select  m.`title`, md.`directorID` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
