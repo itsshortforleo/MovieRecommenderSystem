@@ -1,0 +1,9 @@
+Recommendation by Movie Actor:
+
+We added a recommendation query which recommends movies by actor. This is done by using the Ranking property in movie_actors, and selecting TOP 1 record to find the lead actor/actress.
+
+
+Exact match and string pattern matching searches:
+If we click the exact match button, the query tries to get an exact match on movie title, director, etc.
+
+Added a limiting control to all queries (maximum number of records returned)

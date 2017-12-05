@@ -1,0 +1,3 @@
+Leonardo Lopez: Schema Design, DB Creation Parser, Tags UI, Queries
+Nuha Aldausari: UI Design, Initial Query Design, Recommendation
+Michael Guynn: UI Design, Queries, Bug Fixing, Random enhancements
