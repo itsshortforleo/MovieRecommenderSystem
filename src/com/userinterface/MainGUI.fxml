@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -9,16 +10,15 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.layout.FlowPane?>
-<AnchorPane prefHeight="750.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController" style="-fx-font-size:11px">
+<AnchorPane prefHeight="750.0" prefWidth="1300.0" style="-fx-font-size:11px" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
    <children>
-       <FlowPane orientation="HORIZONTAL" layoutX="220" layoutY="20" minWidth="850" hgap="10">
+       <FlowPane hgap="10" layoutX="220" layoutY="20" minWidth="850" orientation="HORIZONTAL">
            <children>
-               <TextField fx:id="searchText" layoutX="220.0" layoutY="20.0" prefHeight="25.0" prefWidth="300.0" promptText="Find Movies" onAction="#SearchQueries" />
+               <TextField fx:id="searchText" layoutX="220.0" layoutY="20.0" onAction="#SearchQueries" prefHeight="25.0" prefWidth="300.0" promptText="Find Movies" />
                <ComboBox fx:id="choices" layoutX="530.0" layoutY="20.0" prefWidth="150.0" />
                <Label layoutX="690" layoutY="25" text="Limit to" />
                <Spinner fx:id="limitTo" editable="true" layoutX="740" layoutY="20" prefWidth="70" />
@@ -35,8 +35,9 @@
          <children>
             <Pane fx:id="MovPane" prefHeight="200.0" prefWidth="200.0">
                <children>
+                  <Label layoutY="418.0" prefHeight="27.0" prefWidth="190.0" text="Recommendation" />
                   
-                  <ComboBox fx:id="recomComboBox" layoutY="419.0" prefHeight="27.0" prefWidth="150.0" />
+                  <ComboBox fx:id="recomComboBox" layoutX="157.0" layoutY="419.0" prefHeight="27.0" prefWidth="200.0" />
                   <ListView fx:id="recomList" layoutY="459.0" orientation="HORIZONTAL" prefHeight="187.0" prefWidth="820.0" />
                   <TableView fx:id="MovieTable" prefHeight="402.0" prefWidth="820.0">
                     <columns>
