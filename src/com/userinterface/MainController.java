@@ -349,9 +349,7 @@ public class MainController implements Initializable {
 			rs = ps.executeQuery();
 			System.out.println(query);
             while (rs.next()) {
-            	recomndresults.add(new RecomResult(
-                		rs.getString("title"),
-                		rs.getString("rtPictureURL")));
+            	recomndresults.add(new RecomResult(rs.getString("title")));
             			System.out.println(rs.getString("title"));
             }
         } 
@@ -371,29 +369,29 @@ public class MainController implements Initializable {
 			}
 		}
 		
-        recomList.setCellFactory(new Callback<ListView<RecomResult>, ListCell<RecomResult>>() {
-			
-        	@Override
-			public ListCell<RecomResult> call(ListView<RecomResult> param) {
-				ListCell<RecomResult> cell=new ListCell<RecomResult>(){
-					@Override
-					protected void updateItem(RecomResult res, boolean empty){
-						super.updateItem(res, empty);
-						if (res != null){
-							ImageView imageview = new ImageView();
-							imageview.setImage(new Image(res.getRtPictureURL()));
-                            setGraphic(imageview);
-                            setText(res.getTitle());
-						}
-					}
-					
-				};
-        		return cell;
-        		
-				
-			}
-        }
-    );
+//        recomList.setCellFactory(new Callback<ListView<RecomResult>, ListCell<RecomResult>>() {
+//			
+//        	@Override
+//			public ListCell<RecomResult> call(ListView<RecomResult> param) {
+//				ListCell<RecomResult> cell=new ListCell<RecomResult>(){
+//					@Override
+//					protected void updateItem(RecomResult res, boolean empty){
+//						super.updateItem(res, empty);
+//						if (res != null ){
+//							ImageView imageview = new ImageView();
+//							imageview.setImage(new Image(res.getRtPictureURL()));
+//                            setGraphic(imageview);
+//                            setText(res.getTitle());
+//						}
+//					}
+//					
+//				};
+//        		return cell;
+//        		
+//				
+//			}
+//        }
+//    );
         recomList.setItems(recomndresults);  
 		
 	}
@@ -713,7 +711,7 @@ public class MainController implements Initializable {
 	            			e.printStackTrace();
 	            		}
 	            		usePar=false;
-	                	query="select  m.`title`, m.`rtPictureURL` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
+	                	query="select  m.`title` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
 	                	System.out.println(query);
 	                	break;
 	                }
@@ -744,7 +742,7 @@ public class MainController implements Initializable {
 	            			e.printStackTrace();
 	            		}
 	            		//Recommendation query
-	                	query="SELECT  m.`title`, m.`rtPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	query="SELECT  m.`title` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
 	                	usePar=true;
 	                	System.out.println("actorid"+actorid);
 	                	 break;

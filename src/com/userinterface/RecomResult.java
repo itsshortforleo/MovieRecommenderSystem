@@ -4,19 +4,20 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class RecomResult {
 	private SimpleStringProperty  title;
-	private static SimpleStringProperty  rtPictureURL;
+//	private static SimpleStringProperty  rtPictureURL;
 	
-	public RecomResult(String title,String rtPictureURL) {
+	public RecomResult(String title) {
 	super();
 	this.title = new SimpleStringProperty (title);
-	this.rtPictureURL = new SimpleStringProperty(rtPictureURL);}
+//	this.rtPictureURL = new SimpleStringProperty(rtPictureURL);
+	}
 	
 	public String getTitle(){
 		return title.get();
 	}
 	
-	public static String getRtPictureURL(){
-		return rtPictureURL.get();
-	}
+//	public static String getRtPictureURL(){
+//		return rtPictureURL.get();
+//	}
 	
 }
