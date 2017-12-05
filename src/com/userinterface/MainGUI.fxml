@@ -14,9 +14,9 @@
 
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.FlowPane?>
-<AnchorPane prefHeight="750.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController">
+<AnchorPane prefHeight="750.0" prefWidth="1300.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.userinterface.MainController" style="-fx-font-size:11px">
    <children>
-       <FlowPane orientation="HORIZONTAL" layoutX="220" layoutY="20" minWidth="800" hgap="10">
+       <FlowPane orientation="HORIZONTAL" layoutX="220" layoutY="20" minWidth="850" hgap="10">
            <children>
                <TextField fx:id="searchText" layoutX="220.0" layoutY="20.0" prefHeight="25.0" prefWidth="300.0" promptText="Find Movies" onAction="#SearchQueries" />
                <ComboBox fx:id="choices" layoutX="530.0" layoutY="20.0" prefWidth="150.0" />
