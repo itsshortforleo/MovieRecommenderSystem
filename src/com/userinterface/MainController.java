@@ -24,6 +24,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -66,10 +67,9 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<userInfo, Integer> hour;
 	@FXML private TableColumn<userInfo, Integer> minute;
 	@FXML private TableColumn<userInfo, Integer> second;
+	@FXML private PieChart perpiechart;
 	
-	@FXML private TableView<userGenre> percTable;
-	@FXML private TableColumn<userGenre, Float> percent;
-	@FXML private TableColumn<userGenre, String> genre;
+	
 	
 	@FXML private TableView<TopDirectorsResult> tableViewTopDirectorsResult;
 	@FXML private TableColumn<TopDirectorsResult, String> directorNameColumn;
@@ -295,8 +295,10 @@ public class MainController implements Initializable {
         Year.setCellValueFactory(new PropertyValueFactory<Result,Integer>("year"));
         AudienceScore.setCellValueFactory(new PropertyValueFactory<Result,Integer>("rtAudienceScore"));
 
+        MoviePicture2.setCellValueFactory(new PropertyValueFactory<Result,String>("imdbPictureURL"));  
+
         // Convert URL to an image
-        MoviePicture1.setCellValueFactory(new PropertyValueFactory<Result,String>("rtPictureURL"));               
+        MoviePicture1.setCellValueFactory(new PropertyValueFactory<Result,String>("rtPictureURL"));  
 		MoviePicture1.setCellFactory(new Callback<TableColumn<Result,String>,TableCell<Result,String>>(){        
             @Override
             public TableCell<Result,String> call(TableColumn<Result,String> param) {                
@@ -435,6 +437,7 @@ public class MainController implements Initializable {
         ResultSet rs3 = null;
         String searchParameter=null;
         HashMap<String,Integer> hmGenre=new HashMap<String,Integer>();
+        ObservableList<PieChart.Data> pieChartData=FXCollections.observableArrayList();
         
 		try {
 			// results is a Result list object that will hold our query result data
@@ -478,10 +481,14 @@ public class MainController implements Initializable {
                 ps3.setString(2, "%"+s+"%");
                 rs3 =ps3.executeQuery();
                 System.out.println(ps3);
+                
                 while (rs3.next()) {
+                	if (rs3.getFloat("totalMovies") !=0){
                 	float percnta=(rs3.getFloat("totalMovies")/totalMovieRecoreds)*100;
                 	genrePerc.add(new userGenre(percnta,s));
-                	System.out.println(percnta);
+                	pieChartData.add(new PieChart.Data(s,percnta));
+                	
+                	System.out.println(percnta);}
                 	 
                 }
                     
@@ -505,6 +512,9 @@ public class MainController implements Initializable {
 			}
 		}
 		
+		perpiechart.setTitle("Movie breakdown by Genre");
+		perpiechart.setData(pieChartData);
+		
 		// Set cell value factory to tableview.
 		
 		userid.setCellValueFactory(new PropertyValueFactory<userInfo,Integer>("userid"));
@@ -519,11 +529,7 @@ public class MainController implements Initializable {
 		userTable.setItems(null);
 		userTable.setItems(Userresults);
 		
-		genre.setCellValueFactory(new PropertyValueFactory<userGenre,String>("genre"));
-		percent.setCellValueFactory(new PropertyValueFactory<userGenre,Float>("perc"));
-
-		percTable.setItems(null);
-		percTable.setItems(genrePerc);
+		
 		
 		
 
