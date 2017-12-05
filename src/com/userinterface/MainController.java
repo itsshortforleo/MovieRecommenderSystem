@@ -633,23 +633,7 @@ public class MainController implements Initializable {
 		
 		MovieTable.setEditable(false);
 		
-		/*Callback<TableColumn<Result,String>,TableCell<Result,String>> integerCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
-			@Override
-			public TableCell call(TableColumn p) {
-				MyIntegerTableCell cell = new MyIntegerTableCell();
-				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
-				return cell;
-				}
-			};
-	    */
-//		Callback<TableColumn<Result,String>,TableCell<Result,String>> stringCellFactory = new Callback<TableColumn<Result,String>,TableCell<Result,String>>() {
-//				@Override
-//				public TableCell call(TableColumn p) {
-//				MyStringTableCell cell = new MyStringTableCell();
-//				cell.addEventFilter(MouseEvent.MOUSE_CLICKED, new MyEventHandler());
-//				return cell;
-//				}
-//			};
+
 
 		choices.setItems(comboBoxcontent);
 		choices.getSelectionModel().select("Title");
