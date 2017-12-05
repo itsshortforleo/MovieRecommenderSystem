@@ -140,7 +140,7 @@ public class MainController implements Initializable {
             	break;
             //query6
             case "Tag":  changePaneView(overallStackPane, MovPane);
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value`" + searchStr + "? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value`" + searchStr + "? ORDER BY (m.`rtAudienceScore`) desc " + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query9 
