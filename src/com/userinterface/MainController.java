@@ -2,6 +2,7 @@ package com.userinterface;
 
 
 import java.net.URL;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -46,7 +47,7 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<Result, Integer> AudienceScore;
 	@FXML private ComboBox<String> choices;
 	@FXML private ComboBox<String> recomComboBox;
-	@FXML private ListView<Result> recomList;
+	@FXML private ListView<RecomResult> recomList;
 	@FXML private ListView<String> topList;
 	@FXML private ListView<String> movieDetailsList;
 	@FXML private ImageView movieImg;
@@ -86,6 +87,7 @@ public class MainController implements Initializable {
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
+	public ObservableList<RecomResult> recomndresults;
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
@@ -329,15 +331,75 @@ public class MainController implements Initializable {
 		
 
 	}
-	private void setSelection(IndexedCell cell) {
-    	if (cell.isSelected()) {
-    		System.out.println("False enter");
-    		MovieTable.getSelectionModel().clearSelection(cell.getIndex());
-    	} else {
-    		System.out.println("Select");
-    		MovieTable.getSelectionModel().select(cell.getIndex());
-    	}
-    }
+	
+	public  void RunRecomQuery(String query, String otherpar, boolean usepar) {
+        Connection conn = dc.Connect();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+		try {
+			// results is a Result list object that will hold our query result data
+			recomndresults = FXCollections.observableArrayList();
+            
+            
+			ps = conn.prepareStatement(query);
+//			if (usepar ==true)
+//			{
+//				ps.setString(1,"%"+ otherpar+"%");
+//			}
+			rs = ps.executeQuery();
+			System.out.println(query);
+            while (rs.next()) {
+            	recomndresults.add(new RecomResult(
+                		rs.getString("title"),
+                		rs.getString("rtPictureURL")));
+            			System.out.println(rs.getString("title"));
+            }
+        } 
+		catch (SQLException ex) {
+            System.err.println("Error" + ex);
+        } 		
+		finally {
+			try {
+				rs.close();
+				conn.close();
+				ps.close();
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}
+		
+        recomList.setCellFactory(new Callback<ListView<RecomResult>, ListCell<RecomResult>>() {
+			
+        	@Override
+			public ListCell<RecomResult> call(ListView<RecomResult> param) {
+				ListCell<RecomResult> cell=new ListCell<RecomResult>(){
+					@Override
+					protected void updateItem(RecomResult res, boolean empty){
+						super.updateItem(res, empty);
+						if (res != null){
+							ImageView imageview = new ImageView();
+							imageview.setImage(new Image(res.getRtPictureURL()));
+                            setGraphic(imageview);
+                            setText(res.getTitle());
+						}
+					}
+					
+				};
+        		return cell;
+        		
+				
+			}
+        }
+    );
+        recomList.setItems(recomndresults);  
+		
+	}
+	
+	
+	
 	// this is for Q9
 	public  void RunUserQuery(String query, String otherpar) {
 		// Initializing these variables out here so that they're inside the try catch scope
@@ -603,14 +665,20 @@ public class MainController implements Initializable {
 		recomComboBox.valueProperty().addListener(new ChangeListener<String>() {
 	        @Override public void changed(ObservableValue ov, String t, String t1) {
 	        	Result data = null ;
-	        	 for (TablePosition<Result, ?> pos : MovieTable.getSelectionModel().getSelectedCells()) {
-	            	 int row = pos.getRow();
-	            	    data = MovieTable.getItems().get(row);
-	            	    System.out.println("ttt"+data.getid());}
+	        	 
 	        	
 	            System.out.println("newval"+t1);
 	            String query=null;
 	            String actorid = null;
+	            int midarray[]= new  int[MovieTable.getSelectionModel().getSelectedCells().size()];
+	            int index=0;
+	            boolean usePar=false;
+	            for (TablePosition<Result, ?> pos : MovieTable.getSelectionModel().getSelectedCells()) {
+	            	
+	            	int row = pos.getRow();
+            	    data = MovieTable.getItems().get(row);
+            	    midarray[index]=data.getid(); index++;
+            	    System.out.println("ttt"+data.getid());}
 	            
 	            switch (t1) 
 	            {
@@ -621,7 +689,48 @@ public class MainController implements Initializable {
 	                }
 	                // Recommendation#2         
 	                case "By Director":  {
-	                	query="select  m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ('michael_mann',  'billy_wilder') order by m.`rtAudienceScore` LIMIT 5;";
+	                	 System.out.println("in dir");
+	                	final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
+	            		final String USER = "root";
+	            		final String PASS = "root";
+	            		StringBuilder dircidList = null ;
+	            		try {
+	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	            			
+	            			
+	            			StringBuilder idList = new StringBuilder();
+	            					for (int id : midarray) {
+	            					   if (idList.length() > 0) {
+	            					     idList.append(",");
+	            					   }
+	            					   idList.append(id);
+	            					}
+	            			System.out.println(idList);
+	            			PreparedStatement ps=conn.prepareStatement("SELECT md.`directorID` FROM `movie_directors` md WHERE md.`movieID` IN ("+idList+") ;");
+	            			
+	            			System.out.println(ps);
+	            			ResultSet myRs = ps.executeQuery();
+	            			 dircidList = new StringBuilder();
+	            			while(myRs.next()) {
+	            				 String drid= myRs.getString("directorID");	
+	            				 System.out.println("drid"+drid);
+	            				 if (dircidList.length() > 0) {
+	            					 dircidList.append(",");
+            					   }
+	            				 dircidList.append("'"+drid+"'");
+	            			}
+	            			
+	            			myRs.close();
+	            			ps.close();
+	            			conn.close();
+	            		}
+	            		catch (Exception e){
+	            			
+	            			e.printStackTrace();
+	            		}
+	            		usePar=false;
+	                	query="select  m.`title`, m.`rtPictureURL` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
+	                	System.out.println(query);
 	                	break;
 	                }
 	                // EXTRA Recommendation
@@ -651,38 +760,16 @@ public class MainController implements Initializable {
 	            			e.printStackTrace();
 	            		}
 	            		//Recommendation query
-	                	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	query="SELECT  m.`title`, m.`rtPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	usePar=true;
 	                	System.out.println("actorid"+actorid);
 	                	 break;
 	                }
 	                			            
 	        }
 	            isSearch=false;
-	            RunMovieQuery(query,actorid);
-	            recomList.setCellFactory(new Callback<ListView<Result>, ListCell<Result>>() {
-					
-	            	@Override
-					public ListCell<Result> call(ListView<Result> param) {
-						ListCell<Result> cell=new ListCell<Result>(){
-							@Override
-							protected void updateItem(Result res, boolean empty){
-								super.updateItem(res, empty);
-								if (res != null){
-									ImageView imageview = new ImageView();
-									imageview.setImage(new Image(res.getRtPictureURL()));
-		                            setGraphic(imageview);
-		                            setText(res.getTitle());
-								}
-							}
-							
-						};
-	            		return cell;
-	            		
-						
-					}
-	            }
-	        );
-	            recomList.setItems(results);  
+	            RunRecomQuery(query,actorid, usePar);
+
 	            
 	        }
 	        
