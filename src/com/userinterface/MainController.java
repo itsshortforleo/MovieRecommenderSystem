@@ -77,6 +77,8 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<TopDirectorsResult, Float> directorAverageAudienceScore;
 
 	@FXML private Spinner limitTo;
+	@FXML private Spinner minAppearances;
+	@FXML private CheckBox exactSearchCheck;
 	
 	@FXML private TableView<TopActorsResult> tableViewTopActorsResult;
 	@FXML private TableColumn<TopActorsResult, String> actorNameColumn;
@@ -101,48 +103,55 @@ public class MainController implements Initializable {
 	ObservableList<String> comboBoxcontent = FXCollections.observableArrayList("Title","Director Name","Actor Name","Tag","User ID","Genre");
 	ObservableList<String> listViewContent = FXCollections.observableArrayList("Top popular movies","Top popular directors","Top popular actors");
 
+	public void changePaneView(StackPane s, Node n) {
+		s.getChildren().get(s.getChildren().size() - 1).setVisible(false);
+		n.toFront();
+		n.setVisible(true);
+	}
+
 	public void SearchQueries(){
 		isSearch=true;
-		String limitStr = "";
+		String limitStr = "", searchStr = " = ";
 		if (Integer.valueOf(limitTo.getEditor().getText()) > 0)
 			limitStr = "LIMIT " + limitTo.getEditor().getText();
-
+		if (!exactSearchCheck.isSelected())
+			searchStr = " LIKE ";
 		// Adding it as a query list rather than a single query so that we can support multiple queries per action
 		String query = null;
 		
 		switch (choices.getValue()) 
         {
 			//query2
-            case "Title":  MovPane.toFront();
-                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title` LIKE ?" + limitStr + ";";
+            case "Title":  changePaneView(overallStackPane, MovPane);
+                query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m WHERE m.`title`" + searchStr + "?" + limitStr + ";";
             	RunMovieQuery(query, null);
-            	query="SELECT distinct t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title` LIKE ?;";
+            	query="SELECT distinct t.`value` as tag FROM `tags` t,`movies` m, `user_tagged_movies` ut WHERE m.`movieID`=ut.`movieID` AND t.`tagID`=ut.`tagID` AND m.`title`" + searchStr + "?;";
             	RunTagsQuery(query, null);
             	break;
             //query4
-            case "Director Name":  MovPane.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName` LIKE ?" + limitStr + ";";
+            case "Director Name":  changePaneView(overallStackPane, MovPane);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_directors` md  WHERE m.`movieID`=md.`movieID` AND md.`directorName`" + searchStr + "?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query5
-            case "Actor Name":  MovPane.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName` LIKE ?" + limitStr + ";";
+            case "Actor Name":  changePaneView(overallStackPane, MovPane);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorName`" + searchStr + "?" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query6
-            case "Tag":  MovPane.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value` LIKE ? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
+            case "Tag":  changePaneView(overallStackPane, MovPane);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_tags` mt, `tags` t WHERE m.`movieID`=mt.`movieID` AND mt.`tagID`=t.`tagID` AND t.`value`" + searchStr + "? ORDER BY (m.`rtAudienceScore`)" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             //query9 
-            case "User ID":  userPane.toFront();
+            case "User ID":  changePaneView(overallStackPane, userPane);
             	query="SELECT urm.`userID`, urm.`rating`, m.`title`, urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second` FROM `movies` m, `user_rated_movies` urm WHERE m.`movieID`=urm.`movieID` AND urm.`userID` =? ORDER BY urm.`date_year`, urm.`date_month`, urm.`date_day`, urm.`date_hour`, urm.`date_minute`, urm.`date_second`" + limitStr + ";";
             	RunUserQuery(query, null);
             	break;
             	
             	//query3 
-            case "Genre":  MovPane.toFront();
-            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg WHERE  m.`movieID`=mg.`movieID` AND mg.`genre` LIKE ?  ORDER BY m.`rtAudienceScore`" + limitStr + ";";
+            case "Genre":  changePaneView(overallStackPane, MovPane);
+            	query="SELECT m.`movieID`, m.`title`,m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m, `movie_genres` mg WHERE  m.`movieID`=mg.`movieID` AND mg.`genre`" + searchStr + "?  ORDER BY m.`rtAudienceScore`" + limitStr + ";";
             	RunMovieQuery(query, null);
             	break;
             	
@@ -165,7 +174,10 @@ public class MainController implements Initializable {
 
 			if (isSearch==true){
 				String searchParameter=searchText.getText();
-				ps.setString(1, "%"+searchParameter+"%");				
+				if (exactSearchCheck.isSelected())
+					ps.setString(1, searchParameter);
+				else
+					ps.setString(1, "%"+searchParameter+"%");
 				}
 			else if (otherpar != null && !otherpar.isEmpty()){
 //				System.out.println(otherpar);
@@ -216,7 +228,10 @@ public class MainController implements Initializable {
 
 			if (isSearch==true){
 				String searchParameter=searchText.getText();
-				ps.setString(1, "%"+searchParameter+"%");				
+				if (exactSearchCheck.isSelected())
+					ps.setString(1, searchParameter);
+				else
+					ps.setString(1, "%"+searchParameter+"%");
 				}
 			else if (otherpar != null && !otherpar.isEmpty()){
 //				System.out.println(otherpar);
@@ -636,6 +651,10 @@ public class MainController implements Initializable {
 		dc = new DbConnection();
 		
 		MovieTable.setEditable(false);
+
+		for (Node n : overallStackPane.getChildren()) {
+			n.setVisible(false);
+		}
 		
 
 
@@ -645,6 +664,7 @@ public class MainController implements Initializable {
 		topList.setItems(listViewContent);
 
 		limitTo.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
+		minAppearances.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 10));
 		
 		//Recommendation part & Recommendation Change Listener
 		ObservableList<String> recomComboBoxContent=FXCollections.observableArrayList("By Genre", "By Director","By Movie Star");
@@ -791,31 +811,31 @@ public class MainController implements Initializable {
 
                     		//query1 
                     		if (new_val.equals("Top popular movies")) {
-                    			MovPane.toFront();
+								changePaneView(overallStackPane, MovPane);
                     			query="SELECT m.`movieID`, m.`title`, m.`year`, m.`rtAudienceScore`, m.`rtPictureURL`, m.`imdbPictureURL` FROM `movies` m ORDER BY m.`rtAudienceScore` " + limitStr + ";";
                         		RunMovieQuery(query,null);    
                     		}
                     		//query7
                     		else if (new_val.equals("Top popular directors")) {
-                    			tableViewTopDirectorsResult.toFront();
+								changePaneView(overallStackPane, tableViewTopDirectorsResult);
                     			query="select md.`directorID`,  md.`directorName`, count(md.directorID) as directorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore "
                             			+ " from `movie_directors` md "
                             			+ " join movies m on m.movieID = md.movieID "
                             			+ " group by md.directorID, md.directorName "
-                            			+ " having count(md.`movieID`) >=10 "
+                            			+ " having count(md.`movieID`) >= " + minAppearances.getEditor().getText()
                             			+ " order by avg(m.rtAudienceScore) desc "
                             			+ limitStr + ";";
                     			RunTopDirectorsQuery(query, null);
                     		}	
                     		//query8
                     		else if (new_val.equals("Top popular actors")) {
-                    			tableViewTopActorsResult.toFront();
+								changePaneView(overallStackPane, tableViewTopActorsResult);
                     			query="select ma.`actorID`,  ma.`actorName`, count(ma.actorID) as actorMovieCount, avg(m.rtAudienceScore) as averageAudienceScore\n" + 
                     					"from `movie_actors` ma\n" + 
                     					"join movies m on m.movieID = ma.movieID\n" + 
                     					"group by ma.actorID, ma.actorName\n" + 
-                    					"having count(ma.`movieID`) >=10\n" + 
-                    					"order by avg(m.rtAudienceScore) desc\n" + 
+                    					"having count(ma.`movieID`) >= " + minAppearances.getEditor().getText() +
+                    					" order by avg(m.rtAudienceScore) desc\n" +
                     					limitStr + ";";
                     			RunTopActorsQuery(query, null);
                     		}
