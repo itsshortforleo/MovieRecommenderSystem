@@ -248,8 +248,9 @@ public class MainController implements Initializable {
                 		rs.getString("title"),
                 		rs.getInt("year"),
                 		rs.getInt("rtAudienceScore"),
-                		rs.getString("imdbPictureURL"),
-                		rs.getString("rtPictureURL")));
+                		rs.getString("rtPictureURL"),
+                		rs.getString("imdbPictureURL")
+                		));
             }
         } 
 		catch (SQLException ex) {
@@ -304,7 +305,7 @@ public class MainController implements Initializable {
                     public void updateItem(String item, boolean empty) {                        
                         if(item!=null && !item.isEmpty()){                            
                             ImageView imageview = new ImageView();
-                            imageview.setImage(new Image(item));
+                            imageview.setImage(new Image(item.replace("\r", "")));
                             setGraphic(imageview);
                         }
                     }
