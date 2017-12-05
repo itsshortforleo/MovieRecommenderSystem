@@ -38,6 +38,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 
 public class MainController implements Initializable {
+	
 	@FXML private TextField searchText;
 	@FXML private TableView<Result> MovieTable;
 	@FXML private TableColumn<Result, String> MoviePicture1;
@@ -47,7 +48,7 @@ public class MainController implements Initializable {
 	@FXML private TableColumn<Result, Integer> AudienceScore;
 	@FXML private ComboBox<String> choices;
 	@FXML private ComboBox<String> recomComboBox;
-	@FXML private ListView<RecomResult> recomList;
+	@FXML private ListView<String> recomList;
 	@FXML private ListView<String> topList;
 	@FXML private ListView<String> movieDetailsList;
 	@FXML private ImageView movieImg;
@@ -89,7 +90,7 @@ public class MainController implements Initializable {
 	
 	// Initializable observable list to hold our database data
 	public ObservableList<Result> results;
-	public ObservableList<RecomResult> recomndresults;
+	public ObservableList<String> recomndresults;
 	public ObservableList<userInfo> Userresults;
 	public ObservableList<String> tagsResults;
 	public ObservableList<TopDirectorsResult> directorResults;
@@ -179,7 +180,7 @@ public class MainController implements Initializable {
 					ps.setString(1, "%"+searchParameter+"%");
 				}
 			else if (otherpar != null && !otherpar.isEmpty()){
-				System.out.println(otherpar);
+//				System.out.println(otherpar);
 				ps.setString(1,"%"+ otherpar+"%");
 			}
 			
@@ -233,7 +234,7 @@ public class MainController implements Initializable {
 					ps.setString(1, "%"+searchParameter+"%");
 				}
 			else if (otherpar != null && !otherpar.isEmpty()){
-				System.out.println(otherpar);
+//				System.out.println(otherpar);
 				ps.setString(1,"%"+ otherpar+"%");
 			}
 			
@@ -347,7 +348,7 @@ public class MainController implements Initializable {
 
 	}
 	
-	public  void RunRecomQuery(String query, String otherpar, boolean usepar) {
+	public  void RunRecomQuery(String query, String otherpar, boolean usepar, int Recomdtype) {
         Connection conn = dc.Connect();
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -355,18 +356,24 @@ public class MainController implements Initializable {
 			// results is a Result list object that will hold our query result data
 			recomndresults = FXCollections.observableArrayList();
             
-            
 			ps = conn.prepareStatement(query);
-//			if (usepar ==true)
-//			{
-//				ps.setString(1,"%"+ otherpar+"%");
-//			}
+			if (usepar ==true)
+			{
+				ps.setString(1,"%"+ otherpar+"%");
+			}
 			rs = ps.executeQuery();
-			System.out.println(query);
-            while (rs.next()) {
-            	recomndresults.add(new RecomResult(rs.getString("title")));
-            			System.out.println(rs.getString("title"));
-            }
+			
+			 while (rs.next()) {
+				 recomndresults.add(rs.getString("title"));
+				 if (Recomdtype==1)
+				 {System.out.println("the result in Recommendation "+rs.getString("title") +">>>>>"+rs.getString("genre"));}
+				 else if (Recomdtype==2)
+				 {System.out.println("the result in Recommendation "+rs.getString("title") +">>>>>"+rs.getString("directorID"));}
+				 else if (Recomdtype==3)
+				 {System.out.println("the result in Recommendation "+rs.getString("title") +">>>>>"+rs.getString("actorID"));}
+				 
+	            }
+           
         } 
 		catch (SQLException ex) {
             System.err.println("Error" + ex);
@@ -438,7 +445,6 @@ public class MainController implements Initializable {
 				}
             // Execute query and store result in a result set
 			rs = ps.executeQuery();
-			System.out.println(ps);
 			// 4. Process the result set
             while (rs.next()) {
             	Userresults.add(new userInfo(
@@ -669,7 +675,6 @@ public class MainController implements Initializable {
 	        	Result data = null ;
 	        	 
 	        	
-	            System.out.println("newval"+t1);
 	            String query=null;
 	            String actorid = null;
 	            int midarray[]= new  int[MovieTable.getSelectionModel().getSelectedCells().size()];
@@ -680,97 +685,114 @@ public class MainController implements Initializable {
 	            	int row = pos.getRow();
             	    data = MovieTable.getItems().get(row);
             	    midarray[index]=data.getid(); index++;
-            	    System.out.println("ttt"+data.getid());}
+            	    }
+	            final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
+        		final String USER = "root";
+        		final String PASS = "root";
+        		PreparedStatement ps = null;
+        		ResultSet myRs = null;
+        		StringBuilder dircidList = null ;
+        		StringBuilder GenreList = null ;
+        		int Recomdtype=0;
+        		try {
+        			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        			
+        			
+        			StringBuilder idList = new StringBuilder();
+        					for (int id : midarray) {
+        					   if (idList.length() > 0) {
+        					     idList.append(",");
+        					   }
+        					   idList.append(id);
+        					}
+        			System.out.println(idList);
+        			
 	            
 	            switch (t1) 
 	            {
 	    			// Recommendation#1
 	                case "By Genre": {
-	                	query="";
-	                	break;
+	                	Recomdtype=1;
+	                	 ps=conn.prepareStatement("SELECT mg.`genre` FROM `movie_genres` mg WHERE mg.`movieID` IN ("+idList+") ;");
+	                	
+	        			
+	                	String genres=null;
+	        			 myRs = ps.executeQuery();
+	        			GenreList = new StringBuilder();
+            			while(myRs.next()) {
+            				  genres= myRs.getString("genre").replaceAll("\n", "").replaceAll("\r", "");
+            				 if (GenreList.length() > 0) {
+            					 
+            					 GenreList.append("|");
+        					   }
+            				 
+            				 GenreList.append(""+genres+"");
+            				
+            			}
+            			
+            			 System.out.println("The genre for the selected movies: "+GenreList);
+            			
+            		usePar=false;
+                	query="select  m.`title`, mg.`genre` from `movies` m join `movie_genres` mg on mg.movieID = m.movieID where (mg.`genre`) REGEXP "+"'"+GenreList+"'"+" order by m.`rtAudienceScore` LIMIT 5;";
+                	break;
 	                }
 	                // Recommendation#2         
-	                case "By Director":  {
-	                	 System.out.println("in dir");
-	                	final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
-	            		final String USER = "root";
-	            		final String PASS = "root";
-	            		StringBuilder dircidList = null ;
-	            		try {
-	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	            			
-	            			
-	            			StringBuilder idList = new StringBuilder();
-	            					for (int id : midarray) {
-	            					   if (idList.length() > 0) {
-	            					     idList.append(",");
-	            					   }
-	            					   idList.append(id);
-	            					}
-	            			System.out.println(idList);
-	            			PreparedStatement ps=conn.prepareStatement("SELECT md.`directorID` FROM `movie_directors` md WHERE md.`movieID` IN ("+idList+") ;");
-	            			
-	            			System.out.println(ps);
-	            			ResultSet myRs = ps.executeQuery();
-	            			 dircidList = new StringBuilder();
+	                case "By Director":  {	
+	                	Recomdtype=2;
+	                	 ps=conn.prepareStatement("SELECT md.`directorID` FROM `movie_directors` md WHERE md.`movieID` IN ("+idList+") ;");
+	        			
+	                	String drid=null;
+	        			 myRs = ps.executeQuery();
+	            		   dircidList = new StringBuilder();
 	            			while(myRs.next()) {
-	            				 String drid= myRs.getString("directorID");	
-	            				 System.out.println("drid"+drid);
+	            				 drid= myRs.getString("directorID");	
 	            				 if (dircidList.length() > 0) {
 	            					 dircidList.append(",");
             					   }
 	            				 dircidList.append("'"+drid+"'");
+	            				 
 	            			}
+	            			System.out.println("The director id for the selected movies: "+drid);
 	            			
-	            			myRs.close();
-	            			ps.close();
-	            			conn.close();
-	            		}
-	            		catch (Exception e){
-	            			
-	            			e.printStackTrace();
-	            		}
 	            		usePar=false;
-	                	query="select  m.`title` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
-	                	System.out.println(query);
+	                	query="select  m.`title`, md.`directorID` from `movie_directors` md, `movies` m WHERE m.`movieID` = md.`movieID`  AND md.`directorID`  IN  ("+dircidList+") order by m.`rtAudienceScore` LIMIT 5;";
+	                	
 	                	break;
 	                }
 	                // EXTRA Recommendation
 	                case "By Movie Star": {
 	                	// prepare  var for the Recommendation query
-	    	            final String DB_URL = "jdbc:mysql://localhost:3306/movie_recommender?useSSL=false";
-	            		final String USER = "root";
-	            		final String PASS = "root";
-	            		try {
-	            			Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-	            			PreparedStatement ps=conn.prepareStatement("SELECT a.`actorID` FROM `movie_actors` a WHERE a.`movieID`=? AND a.`ranking` IN (SELECT  MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?) ;");
+	                	    Recomdtype=3;
+	                	    ps=conn.prepareStatement("SELECT a.`actorID` FROM `movie_actors` a WHERE a.`movieID`=? AND a.`ranking` IN (SELECT  MAX(ma.`ranking`) FROM `movie_actors` ma WHERE ma.`movieID`=?) ;");
 	            			Integer movieID=data.getid();
-	            			System.out.println("movieID"+movieID);
+	            			
 	            			ps.setInt(1, movieID);
 	            			ps.setInt(2, movieID);
-	            			ResultSet myRs = ps.executeQuery();
+	            			 myRs = ps.executeQuery();
 	            			while(myRs.next()) {
 	            				 actorid= myRs.getString("actorID");	
 	            			}
 	            			
-	            			myRs.close();
-	            			ps.close();
-	            			conn.close();
-	            		}
-	            		catch (Exception e){
-	            			
-	            			e.printStackTrace();
-	            		}
+	            		System.out.println("The actorID for the selected movie: "+actorid);
 	            		//Recommendation query
-	                	query="SELECT  m.`title` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
+	                	query="SELECT  m.`title` , ma.`actorID` FROM `movies` m, `movie_actors` ma WHERE m.`movieID`=ma.`movieID` AND ma.`actorID` LIKE ? ;";
 	                	usePar=true;
-	                	System.out.println("actorid"+actorid);
+	                	
 	                	 break;
 	                }
 	                			            
 	        }
 	            isSearch=false;
-	            RunRecomQuery(query,actorid, usePar);
+	            myRs.close();
+    			ps.close();
+    			conn.close();
+    		}
+    		catch (Exception e){
+    			
+    			e.printStackTrace();
+    		}
+        		
+	            RunRecomQuery(query,actorid, usePar,Recomdtype);
 
 	            
 	        }
